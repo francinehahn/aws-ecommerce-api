@@ -14,6 +14,7 @@ export class EcommerceApiStack extends cdk.Stack {
 
         const logGroup = new cwLogs.LogGroup(this, "EcommerceApiLogs")
 
+        //Integration between the API and the lambda function
         const api = new apiGateway.RestApi(this, "EcommerceApi", {
             restApiName: "EcommerceApi",
             cloudWatchRole: true,
