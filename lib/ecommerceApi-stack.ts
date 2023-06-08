@@ -5,7 +5,8 @@ import * as cwLogs from "aws-cdk-lib/aws-logs"
 import { Construct } from "constructs"
 
 interface EcommerceApiStackProps extends cdk.StackProps {
-    productsFetchHandler: lambdaNodeJS.NodejsFunction
+    productsFetchHandler: lambdaNodeJS.NodejsFunction,
+    productsAdminHandler: lambdaNodeJS.NodejsFunction
 }
 
 export class EcommerceApiStack extends cdk.Stack {
@@ -14,7 +15,7 @@ export class EcommerceApiStack extends cdk.Stack {
 
         const logGroup = new cwLogs.LogGroup(this, "EcommerceApiLogs")
 
-        //Integration between the API and the lambda function
+        //API Gateway config
         const api = new apiGateway.RestApi(this, "EcommerceApi", {
             restApiName: "EcommerceApi",
             cloudWatchRole: true,
@@ -34,10 +35,27 @@ export class EcommerceApiStack extends cdk.Stack {
             }
         })
 
+        //Integration between the API and the lambda function
         const productsFetchIntegration = new apiGateway.LambdaIntegration(props.productsFetchHandler)
         
-        // "/products"
+        // GET "/products" endpoint
         const productsRosource = api.root.addResource("products")
         productsRosource.addMethod("GET", productsFetchIntegration)
+
+        // GET "/products/{id}" endpoint
+        const productIdResource = productsRosource.addResource("{id}")
+        productIdResource.addMethod("GET", productsFetchIntegration)
+
+        //Integration between the API and the lambda function
+        const productsAdminIntegration = new apiGateway.LambdaIntegration(props.productsAdminHandler)
+
+        // POST "/products" endpoint
+        productsRosource.addMethod("POST", productsAdminIntegration)
+
+        // PUT "/products/{id}" endpoint
+        productIdResource.addMethod("PUT", productsAdminIntegration)
+
+        // DELETE "/products/{id}" endpoint
+        productIdResource.addMethod("DELETE", productsAdminIntegration)
     }
 }
