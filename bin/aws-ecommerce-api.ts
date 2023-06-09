@@ -4,6 +4,7 @@ import * as cdk from 'aws-cdk-lib'
 import { ProductsAppStack } from '../lib/productsApp-stack'
 import { EcommerceApiStack } from '../lib/ecommerceApi-stack'
 import * as dotenv from "dotenv"
+import { ProductsAppLayersStack } from '../lib/productsAppLayers-stack'
 
 dotenv.config()
 
@@ -19,11 +20,19 @@ const tags = {
   team: "FrancineHahn"
 }
 
+//Layers stack
+const productsAppLayersStack = new ProductsAppLayersStack(app, "ProductsAppLayers", {
+  tags: tags,
+  env: env
+})
+
 //Products stack
 const productsAppStack = new ProductsAppStack(app, "ProductsApp", {
   tags: tags,
   env: env
 })
+
+productsAppStack.addDependency(productsAppLayersStack)
 
 //EcommerceApi stack
 const ecommerceApiStack = new EcommerceApiStack(app, "EcommerceApi", {
