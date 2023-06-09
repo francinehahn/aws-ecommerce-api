@@ -1,6 +1,10 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
 import { Product, ProductRepository } from "/opt/nodejs/productsLayer"
 import { DynamoDB } from "aws-sdk"
+import * as xray from "aws-xray-sdk"
+
+//adding aws x ray
+xray.captureAWS(require("aws-sdk"))
 
 /*Must use the same name (PRODUCTS_DB) as specified in the productsFetchHandler object
 in the environment key on the productsApp-stack file*/
