@@ -5,6 +5,7 @@ import { ProductsAppStack } from '../lib/productsApp-stack'
 import { EcommerceApiStack } from '../lib/ecommerceApi-stack'
 import * as dotenv from "dotenv"
 import { ProductsAppLayersStack } from '../lib/productsAppLayers-stack'
+import { EventsDbStack } from 'lib/eventsDb-stack'
 
 dotenv.config()
 
@@ -26,13 +27,20 @@ const productsAppLayersStack = new ProductsAppLayersStack(app, "ProductsAppLayer
   env: env
 })
 
-//Products stack
-const productsAppStack = new ProductsAppStack(app, "ProductsApp", {
+const eventsDbStack = new EventsDbStack(app, "EventsDb", {
   tags: tags,
   env: env
 })
 
+//Products stack
+const productsAppStack = new ProductsAppStack(app, "ProductsApp", {
+  tags: tags,
+  env: env,
+  eventsDb: eventsDbStack.table
+})
+
 productsAppStack.addDependency(productsAppLayersStack)
+productsAppStack.addDependency(eventsDbStack)
 
 //EcommerceApi stack
 const ecommerceApiStack = new EcommerceApiStack(app, "EcommerceApi", {
