@@ -13,7 +13,7 @@ https://documenter.getpostman.com/view/26335922/2s93sc3rmW
 ## 🌐 Deploy
 https://rgxypz5u56.execute-api.us-east-1.amazonaws.com/prod/
 
-## ☑️Requests:
+## ☑️Requests created:
 - Get All Products
 - Get Product By Id
 - Create Product
@@ -74,6 +74,7 @@ Provide the access key ID, the Secret access key, the region and the file format
 The access key ID and the Secret access key can be generated on your aws account (IAM User)
 This will generate a ~/.aws/config file and a ~/.aws/credentials file that will be saved on your computer
 
+From now on, make sure that your Docker Desktop is open.
 On a terminal, run this command only once (the other times you want to deploy something to your aws account, you can skip this command)
 <pre>
   <code>cdk bootstrap --profile your-aws-account-name</code>
