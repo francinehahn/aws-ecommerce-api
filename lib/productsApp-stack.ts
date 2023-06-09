@@ -46,7 +46,7 @@ export class ProductsAppStack extends cdk.Stack {
             },
             layers: [productsLayer],
             tracing: lambda.Tracing.ACTIVE,
-            insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0
+            insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
         })
 
         //this will grant access to the products fetch function to access the db to read data
@@ -68,7 +68,7 @@ export class ProductsAppStack extends cdk.Stack {
             },
             layers: [productsLayer],
             tracing: lambda.Tracing.ACTIVE,
-            insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0
+            insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
         })
 
         //this will grant access to the products admin function to access the db to write data
