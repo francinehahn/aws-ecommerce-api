@@ -6,7 +6,8 @@ export interface Product {
     productName: string,
     code: string,
     price: number,
-    model: string
+    model: string,
+    productUrl: string
 }
 
 export class ProductRepository {
@@ -76,12 +77,13 @@ export class ProductRepository {
             },
             ConditionExpression: "attribute_exists(id)", //The product will only be updated if the productId exists
             ReturnValues: "UPDATED_NEW", //it will return the info that was updated
-            UpdateExpression: "set productName = :n, code = :c, price = :p, model = :m", //the info that will be updated
+            UpdateExpression: "set productName = :n, code = :c, price = :p, model = :m, productUrl = :u", //the info that will be updated
             ExpressionAttributeValues: {
                 ":n": product.productName,
                 ":c": product.code,
                 ":p": product.price,
-                ":m": product.model
+                ":m": product.model,
+                ":u": product.productUrl
             }
         }).promise()
 
