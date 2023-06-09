@@ -38,7 +38,54 @@ export class ProductRepository {
             return data.Item as Product
         } else {
             throw new Error("Product not found")
-            
         }
+    }
+
+    async insertProduct (product: Product): Promise<Product> {
+        product.id = uuid()
+        await this.dbClient.put({
+            TableName: this.productsdb,
+            Item: product
+        }).promise()
+
+        return product
+    }
+
+    async deleteProduct (productId: string): Promise<Product> {
+        const data = await this.dbClient.delete({
+            TableName: this.productsdb,
+            Key: {
+                id: productId
+            },
+            ReturnValues: "ALL_OLD" //The default is to return nothing
+        }).promise()
+
+        //this will give us info on whether the product was deleted or not (if the productId does not exist, it will return an error)
+        if (data.Attributes) {
+            return data.Attributes as Product
+        } else {
+            throw new Error("Product not found")
+        }
+    }
+
+    async updateProduct (productId: string, product: Product): Promise<Product> {
+        const data = await this.dbClient.update({
+            TableName: this.productsdb,
+            Key: {
+                id: productId
+            },
+            ConditionExpression: "attribute_exists(id)", //The product will only be updated if the productId exists
+            ReturnValues: "UPDATED_NEW", //it will return the info that was updated
+            UpdateExpression: "set productName = :n, code = :c, price = :p, model = :m", //the info that will be updated
+            ExpressionAttributeValues: {
+                ":n": product.productName,
+                ":c": product.code,
+                ":p": product.price,
+                ":m": product.model
+            }
+        }).promise()
+
+        data.Attributes!.id = productId
+        return data.Attributes as Product
     }
 }
