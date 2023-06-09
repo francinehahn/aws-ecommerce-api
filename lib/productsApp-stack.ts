@@ -3,6 +3,7 @@ import * as lambdaNodeJS from "aws-cdk-lib/aws-lambda-nodejs"
 import * as cdk from "aws-cdk-lib"
 import { Construct } from "constructs"
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb"
+import * as ssm from "aws-cdk-lib/aws-ssm"
 
 export class ProductsAppStack extends cdk.Stack {
     readonly producstFetchHandler: lambdaNodeJS.NodejsFunction
@@ -25,6 +26,10 @@ export class ProductsAppStack extends cdk.Stack {
             writeCapacity: 1 //the default is 5
         })
 
+        //Products layer
+        const productsLayerArn = ssm.StringParameter.valueForStringParameter(this, "ProductsLayerVersionArn")
+        const productsLayer = lambda.LayerVersion.fromLayerVersionArn(this, "ProductsLayerVersionArn", productsLayerArn)
+
         //lambda function config
         this.producstFetchHandler = new lambdaNodeJS.NodejsFunction(this, "ProductsFetchFunction", {
             functionName: "ProductsFetchFunction",
@@ -38,7 +43,8 @@ export class ProductsAppStack extends cdk.Stack {
             },
             environment: {
                 PRODUCTS_DB: this.productsdb.tableName
-            }
+            },
+            layers: [productsLayer]
         })
 
         //this will grant access to the products fetch function to access the db to read data
@@ -57,7 +63,8 @@ export class ProductsAppStack extends cdk.Stack {
             },
             environment: {
                 PRODUCTS_DB: this.productsdb.tableName
-            }
+            },
+            layers: [productsLayer]
         })
 
         //this will grant access to the products admin function to access the db to write data
