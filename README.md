@@ -14,11 +14,18 @@ https://documenter.getpostman.com/view/26335922/2s93sc3rmW
 https://rgxypz5u56.execute-api.us-east-1.amazonaws.com/prod/
 
 ## ☑️Requests created:
+- `Products:`
 - Get All Products
 - Get Product By Id
 - Create Product
 - Update Product
 - Delete Product
+- `Orders:`
+- Get All Orders
+- Get All Orders From A Client
+- Get An Order From A Client
+- Create An Order
+- Delete An Order
 
 ## 💻 Technologies:
 - Typescript
@@ -61,9 +68,7 @@ https://rgxypz5u56.execute-api.us-east-1.amazonaws.com/prod/
 
 Create a file .env and complete the following variable:
 <pre>
-  <code>
-    account = ""
-  </code>
+  <code>account = ""</code>
 </pre>
 
 On a terminal, you will need to set the environment variables so that you can make the deploy to your aws account:
