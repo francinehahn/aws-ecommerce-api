@@ -6,6 +6,8 @@ import { EcommerceApiStack } from '../lib/ecommerceApi-stack'
 import * as dotenv from "dotenv"
 import { ProductsAppLayersStack } from '../lib/productsAppLayers-stack'
 import { EventsDbStack } from '../lib/eventsDb-stack'
+import { OrdersAppLayersStack } from '../lib/ordersAppLayers-stack'
+import { OrdersAppStack } from '../lib/ordersApp-stack'
 
 dotenv.config()
 
@@ -21,7 +23,7 @@ const tags = {
   team: "FrancineHahn"
 }
 
-//Layers stack
+//Products Layers stack
 const productsAppLayersStack = new ProductsAppLayersStack(app, "ProductsAppLayers", {
   tags: tags,
   env: env
@@ -43,12 +45,29 @@ const productsAppStack = new ProductsAppStack(app, "ProductsApp", {
 productsAppStack.addDependency(productsAppLayersStack)
 productsAppStack.addDependency(eventsDbStack)
 
+//Orders Layer Stack
+const ordersAppLayerStack = new OrdersAppLayersStack(app, "OrdersAppLayers", {
+  tags: tags,
+  env: env
+})
+
+//Orders Stack
+const ordersAppStack = new OrdersAppStack(app, "OrdersApp", {
+  tags: tags,
+  env: env,
+  productsdb: productsAppStack.productsdb
+})
+ordersAppStack.addDependency(productsAppStack)
+ordersAppStack.addDependency(ordersAppLayerStack)
+
 //EcommerceApi stack
 const ecommerceApiStack = new EcommerceApiStack(app, "EcommerceApi", {
   productsFetchHandler: productsAppStack.producstFetchHandler,
   productsAdminHandler: productsAppStack.producstAdminHandler,
+  ordersHandler: ordersAppStack.ordersHandler,
   tags: tags,
   env: env
 })
 
 ecommerceApiStack.addDependency(productsAppStack)
+ecommerceApiStack.addDependency(ordersAppStack)
