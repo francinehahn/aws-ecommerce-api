@@ -1,13 +1,17 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import { ProductsAppStack } from '../lib/productsApp-stack';
-import { EcommerceApiStack } from '../lib/ecommerceApi-stack';
+import 'source-map-support/register'
+import * as cdk from 'aws-cdk-lib'
+import { ProductsAppStack } from '../lib/productsApp-stack'
+import { EcommerceApiStack } from '../lib/ecommerceApi-stack'
 import * as dotenv from "dotenv"
+import { ProductsAppLayersStack } from '../lib/productsAppLayers-stack'
+import { EventsDbStack } from '../lib/eventsDb-stack'
+import { OrdersAppLayersStack } from '../lib/ordersAppLayers-stack'
+import { OrdersAppStack } from '../lib/ordersApp-stack'
 
 dotenv.config()
 
-const app = new cdk.App();
+const app = new cdk.App()
 
 const env: cdk.Environment = {
   account: process.env.account,
@@ -19,15 +23,51 @@ const tags = {
   team: "FrancineHahn"
 }
 
-const productsAppStack = new ProductsAppStack(app, "ProductsApp", {
+//Products Layers stack
+const productsAppLayersStack = new ProductsAppLayersStack(app, "ProductsAppLayers", {
   tags: tags,
   env: env
 })
 
+//Events stack
+const eventsDbStack = new EventsDbStack(app, "EventsDb", {
+  tags: tags,
+  env: env
+})
+
+//Products stack
+const productsAppStack = new ProductsAppStack(app, "ProductsApp", {
+  tags: tags,
+  env: env,
+  eventsDb: eventsDbStack.table
+})
+
+productsAppStack.addDependency(productsAppLayersStack)
+productsAppStack.addDependency(eventsDbStack)
+
+//Orders Layer Stack
+const ordersAppLayerStack = new OrdersAppLayersStack(app, "OrdersAppLayers", {
+  tags: tags,
+  env: env
+})
+
+//Orders Stack
+const ordersAppStack = new OrdersAppStack(app, "OrdersApp", {
+  tags: tags,
+  env: env,
+  productsdb: productsAppStack.productsdb
+})
+ordersAppStack.addDependency(productsAppStack)
+ordersAppStack.addDependency(ordersAppLayerStack)
+
+//EcommerceApi stack
 const ecommerceApiStack = new EcommerceApiStack(app, "EcommerceApi", {
   productsFetchHandler: productsAppStack.producstFetchHandler,
+  productsAdminHandler: productsAppStack.producstAdminHandler,
+  ordersHandler: ordersAppStack.ordersHandler,
   tags: tags,
   env: env
 })
 
 ecommerceApiStack.addDependency(productsAppStack)
+ecommerceApiStack.addDependency(ordersAppStack)
