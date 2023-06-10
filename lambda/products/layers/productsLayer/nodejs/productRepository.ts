@@ -90,4 +90,21 @@ export class ProductRepository {
         data.Attributes!.id = productId
         return data.Attributes as Product
     }
+
+    async getProductsByIds (productIds: string[]): Promise<Product[]> {
+        const keys: {id: string}[] = []
+        productIds.forEach(productId => {
+            keys.push({id: productId})
+        })
+        
+        const data = await this.dbClient.batchGet({
+            RequestItems: {
+                [this.productsdb]: { //this is the same as writing "products", which is the table name
+                    Keys: keys
+                }
+            }
+        }).promise()
+
+        return data.Responses![this.productsdb] as Product[]
+    }
 }
