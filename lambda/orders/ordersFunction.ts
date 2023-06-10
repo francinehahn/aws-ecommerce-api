@@ -29,12 +29,35 @@ export async function handler (event: APIGatewayProxyEvent, context: Context): P
             if (email) {
                 if (orderId) {
                     //Get an order from a user
+                    try {
+                        const order = await orderRepository.getOrderByEmailAndOrderId(email, orderId)
+                        return {
+                            statusCode: 200,
+                            body: JSON.stringify(convertToOrderResponse(order))
+                        }
+                    } catch (error: any) {
+                        console.log(error.message)
+                        return {
+                            statusCode: 404,
+                            body: error.message
+                        }
+                    }
                 } else {
-                    //Get all the orders from a user
+                    //Get all orders from a user
+                    const orders = await orderRepository.getOrdersByEmail(email)
+                    return {
+                        statusCode: 200,
+                        body: JSON.stringify(orders.map(convertToOrderResponse))
+                    }
                 }
             }
         } else {
             //GetAllOrders
+            const orders = await orderRepository.getAllOrders()
+            return {
+                statusCode: 200,
+                body: JSON.stringify(orders.map(convertToOrderResponse))
+            }
         }
     } else if (method === "POST") {
         console.log("POST / orders")
