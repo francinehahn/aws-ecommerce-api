@@ -6,7 +6,8 @@ import { Construct } from "constructs"
 
 interface EcommerceApiStackProps extends cdk.StackProps {
     productsFetchHandler: lambdaNodeJS.NodejsFunction,
-    productsAdminHandler: lambdaNodeJS.NodejsFunction
+    productsAdminHandler: lambdaNodeJS.NodejsFunction,
+    ordersHandler: lambdaNodeJS.NodejsFunction
 }
 
 export class EcommerceApiStack extends cdk.Stack {
@@ -35,9 +36,14 @@ export class EcommerceApiStack extends cdk.Stack {
             }
         })
 
+        this.createProductsService(props, api)
+        this.createOrdersService(props, api)
+    }
+
+    private createProductsService(props: EcommerceApiStackProps, api: apiGateway.RestApi) {
         //Integration between the API and the lambda function
         const productsFetchIntegration = new apiGateway.LambdaIntegration(props.productsFetchHandler)
-        
+
         // GET "/products" endpoint
         const productsRosource = api.root.addResource("products")
         productsRosource.addMethod("GET", productsFetchIntegration)
@@ -57,5 +63,34 @@ export class EcommerceApiStack extends cdk.Stack {
 
         // DELETE "/products/{id}" endpoint
         productIdResource.addMethod("DELETE", productsAdminIntegration)
+    }
+
+    private createOrdersService (props: EcommerceApiStackProps, api: apiGateway.RestApi) {
+        //Integration between the API and the lambda function
+        const ordersIntegration = new apiGateway.LambdaIntegration(props.ordersHandler)
+        const ordersResource = api.root.addResource("orders")
+
+        // GET "/orders" endpoint
+        // GET "/orders?email=xxxxxxx" endpoint --> These params are not mandatory
+        // GET "/orders?email=xxxxxxx&orderId=xxx" endpoint --> These params are not mandatory
+        ordersResource.addMethod("GET", ordersIntegration)
+
+        const orderDeletionValidator = new apiGateway.RequestValidator(this, "OrderDeletionValidator", {
+            restApi: api,
+            requestValidatorName: "OrderDeletionValidator",
+            validateRequestParameters: true
+        }) 
+
+        // DELETE "/orders?email=xxxxxxx&orderId=xxx" endpoint --> These params are mandatory
+        ordersResource.addMethod("DELETE", ordersIntegration, {
+            requestParameters: {
+                "method.request.querystring.email": true,
+                "method.request.querystring.orderId": true
+            },
+            requestValidator: orderDeletionValidator
+        })
+
+        // POST "/orders" endpoint
+        ordersResource.addMethod("POST", ordersIntegration)
     }
 }
