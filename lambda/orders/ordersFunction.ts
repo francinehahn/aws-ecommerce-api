@@ -38,6 +38,24 @@ export async function handler (event: APIGatewayProxyEvent, context: Context): P
         }
     } else if (method === "POST") {
         console.log("POST / orders")
+        const orderRequest = JSON.parse(event.body!) as OrderRequest
+        const products = await productRepository.getProductsByIds(orderRequest.productIds)
+
+        //checking if all the product ids exist
+        if (products.length === orderRequest.productIds.length) {
+            const order = buildOrder(orderRequest, products)
+            const orderCreated = await orderRepository.insertOrder(order)
+
+            return {
+                statusCode: 201,
+                body: JSON.stringify(convertToOrderResponse(orderCreated))
+            }
+        } else {
+            return {
+                statusCode: 404,
+                body: "Some product was not found"
+            }
+        }
 
     } else if (method === "DELETE") {
         console.log("DELETE / orders")
