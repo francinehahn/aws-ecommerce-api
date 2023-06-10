@@ -84,8 +84,24 @@ export async function handler (event: APIGatewayProxyEvent, context: Context): P
         console.log("DELETE / orders")
 
         //this request will come with an email and an id because of the config on the ecommerceApi-stack file
-        const email = event.queryStringParameters!.email
-        const orderId = event.queryStringParameters!.orderId
+        const email = event.queryStringParameters!.email!
+        const orderId = event.queryStringParameters!.orderId!
+
+        try {
+            const orderDeleted = await orderRepository.deleteOrder(email, orderId)
+            return {
+                statusCode: 200,
+                body: JSON.stringify(convertToOrderResponse(orderDeleted))
+            }
+        } catch (error: any) {
+            console.log(error.message)
+
+            return {
+                statusCode: 404,
+                body: error.message
+            }
+        }
+        
     }
 
     return {
