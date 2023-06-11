@@ -55,10 +55,12 @@ const ordersAppLayerStack = new OrdersAppLayersStack(app, "OrdersAppLayers", {
 const ordersAppStack = new OrdersAppStack(app, "OrdersApp", {
   tags: tags,
   env: env,
-  productsdb: productsAppStack.productsdb
+  productsdb: productsAppStack.productsdb,
+  eventsdb: eventsDbStack.table
 })
 ordersAppStack.addDependency(productsAppStack)
 ordersAppStack.addDependency(ordersAppLayerStack)
+ordersAppStack.addDependency(eventsDbStack)
 
 //EcommerceApi stack
 const ecommerceApiStack = new EcommerceApiStack(app, "EcommerceApi", {

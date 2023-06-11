@@ -6,6 +6,7 @@ import * as ssm from "aws-cdk-lib/aws-ssm"
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb"
 import * as sns from "aws-cdk-lib/aws-sns"
 import * as subscribe from "aws-cdk-lib/aws-sns-subscriptions"
+import * as iam from "aws-cdk-lib/aws-iam"
 
 interface OrdersAppStackProps extends cdk.StackProps {
     //this table was created on the productsApp-stack file
@@ -99,5 +100,19 @@ export class OrdersAppStack extends cdk.Stack {
         })
 
         ordersTopic.addSubscription(new subscribe.LambdaSubscription(orderEventsHandler))
+
+        //The function OrderEventsHandler will have this permission
+        const eventsdbPolicy = new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions: ["dynamodb: PutItem"],
+            resources: [props.eventsdb.tableArn],
+            conditions: {
+                ["ForAllValues: StringLike"]: {
+                    "dynamodb: LeadingKeys": ["#order_*"]
+                }
+            }
+        })
+
+        orderEventsHandler.addToRolePolicy(eventsdbPolicy)
     }
 }
