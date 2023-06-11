@@ -32,11 +32,11 @@ https://rgxypz5u56.execute-api.us-east-1.amazonaws.com/prod/
 - Node.js
 - AWS Lambda
 - AWS API Gateway (REST)
-- AWS SNS
-- AWS SQS
+- AWS Simple Notification Service (SNS)
+- AWS Simple Queue Service (SQS)
 - AWS Cloud Watch
 - AWS X-Ray
-- DynamoDB
+- DynamoDB (noSQL database)
 - AWS Cloud Development Kit (CDK)
 
 ## 🛰 Running the project:
