@@ -56,15 +56,16 @@ export class EcommerceApiStack extends cdk.Stack {
         const productsAdminIntegration = new apiGateway.LambdaIntegration(props.productsAdminHandler)
 
         // POST "/products" endpoint
-        const createProductRequestValidator = new apiGateway.RequestValidator(this, "CreateProductRequestValidator", {
+        const productRequestValidator = new apiGateway.RequestValidator(this, "ProductRequestValidator", {
             restApi: api,
-            requestValidatorName: "Create product request validator",
+            requestValidatorName: "Product request validator",
             validateRequestBody: true
         })
 
-        const createProductModel = new apiGateway.Model(this, "CreateProductModel", {
-            modelName: "CreateProductModel",
+        const productModel = new apiGateway.Model(this, "ProductModel", {
+            modelName: "ProductModel",
             restApi: api,
+            contentType: "application/json",
             schema: {
                 type: apiGateway.JsonSchemaType.OBJECT,
                 properties: {
@@ -95,14 +96,19 @@ export class EcommerceApiStack extends cdk.Stack {
         })
 
         productsRosource.addMethod("POST", productsAdminIntegration, {
-            requestValidator: createProductRequestValidator,
+            requestValidator: productRequestValidator,
             requestModels: {
-                "application/json": createProductModel
+                "application/json": productModel
             }
         })
 
         // PUT "/products/{id}" endpoint
-        productIdResource.addMethod("PUT", productsAdminIntegration)
+        productIdResource.addMethod("PUT", productsAdminIntegration, {
+            requestValidator: productRequestValidator,
+            requestModels: {
+                "application/json": productModel
+            }
+        })
 
         // DELETE "/products/{id}" endpoint
         productIdResource.addMethod("DELETE", productsAdminIntegration)
@@ -143,6 +149,7 @@ export class EcommerceApiStack extends cdk.Stack {
         const orderModel = new apiGateway.Model(this, "OrderModel", {
             modelName: "OrderModel",
             restApi: api,
+            contentType: "application/json",
             schema: {
                 type: apiGateway.JsonSchemaType.OBJECT,
                 properties: {
