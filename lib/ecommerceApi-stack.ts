@@ -56,10 +56,59 @@ export class EcommerceApiStack extends cdk.Stack {
         const productsAdminIntegration = new apiGateway.LambdaIntegration(props.productsAdminHandler)
 
         // POST "/products" endpoint
-        productsRosource.addMethod("POST", productsAdminIntegration)
+        const productRequestValidator = new apiGateway.RequestValidator(this, "ProductRequestValidator", {
+            restApi: api,
+            requestValidatorName: "Product request validator",
+            validateRequestBody: true
+        })
+
+        const productModel = new apiGateway.Model(this, "ProductModel", {
+            modelName: "ProductModel",
+            restApi: api,
+            contentType: "application/json",
+            schema: {
+                type: apiGateway.JsonSchemaType.OBJECT,
+                properties: {
+                    productName: {
+                        type: apiGateway.JsonSchemaType.STRING,
+                    },
+                    code: {
+                        type: apiGateway.JsonSchemaType.STRING,
+                    },
+                    price: {
+                        type: apiGateway.JsonSchemaType.NUMBER,
+                    },
+                    model: {
+                        type: apiGateway.JsonSchemaType.STRING,
+                    },
+                    productUrl: {
+                        type: apiGateway.JsonSchemaType.STRING
+                    }
+                },
+                required: [
+                    "productName",
+                    "code",
+                    "price",
+                    "model",
+                    "productUrl"
+                ]
+            }
+        })
+
+        productsRosource.addMethod("POST", productsAdminIntegration, {
+            requestValidator: productRequestValidator,
+            requestModels: {
+                "application/json": productModel
+            }
+        })
 
         // PUT "/products/{id}" endpoint
-        productIdResource.addMethod("PUT", productsAdminIntegration)
+        productIdResource.addMethod("PUT", productsAdminIntegration, {
+            requestValidator: productRequestValidator,
+            requestModels: {
+                "application/json": productModel
+            }
+        })
 
         // DELETE "/products/{id}" endpoint
         productIdResource.addMethod("DELETE", productsAdminIntegration)
@@ -91,6 +140,47 @@ export class EcommerceApiStack extends cdk.Stack {
         })
 
         // POST "/orders" endpoint
-        ordersResource.addMethod("POST", ordersIntegration)
+        const orderRequestValidator = new apiGateway.RequestValidator(this, "OrderRequestValidator", {
+            restApi: api,
+            requestValidatorName: "Order request validator",
+            validateRequestBody: true
+        })
+
+        const orderModel = new apiGateway.Model(this, "OrderModel", {
+            modelName: "OrderModel",
+            restApi: api,
+            contentType: "application/json",
+            schema: {
+                type: apiGateway.JsonSchemaType.OBJECT,
+                properties: {
+                    email: {
+                        type: apiGateway.JsonSchemaType.STRING
+                    },
+                    productIds: {
+                        type: apiGateway.JsonSchemaType.ARRAY,
+                        minItems: 1,
+                        items: {
+                            type: apiGateway.JsonSchemaType.STRING
+                        }
+                    },
+                    payment: {
+                        type: apiGateway.JsonSchemaType.STRING,
+                        enum: ["CASH", "DEBIT_CARD", "CREDIT_CARD"]
+                    }
+                },
+                required: [
+                    "email",
+                    "productIds",
+                    "payment"
+                ]
+            }
+        })
+
+        ordersResource.addMethod("POST", ordersIntegration, {
+            requestValidator: orderRequestValidator,
+            requestModels: {
+                "application/json": orderModel
+            }
+        })
     }
 }
