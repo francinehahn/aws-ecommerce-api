@@ -32,6 +32,8 @@ https://rgxypz5u56.execute-api.us-east-1.amazonaws.com/prod/
 - Node.js
 - AWS Lambda
 - AWS API Gateway (REST)
+- AWS SNS
+- AWS SQS
 - AWS Cloud Watch
 - AWS X-Ray
 - DynamoDB
