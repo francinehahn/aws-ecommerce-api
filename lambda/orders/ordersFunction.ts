@@ -5,6 +5,7 @@ import * as xray from "aws-xray-sdk"
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda"
 import { CarrierType, OrderProductResponse, OrderRequest, OrderResponse, PaymentType, ShippingType } from "/opt/nodejs/ordersApiLayer"
 import { OrderEvent, OrderEventType, Envelope } from "/opt/nodejs/orderEventsLayer"
+import {v4 as uuid} from "uuid"
 
 xray.captureAWS(require("aws-sdk"))
 
@@ -70,16 +71,20 @@ export async function handler (event: APIGatewayProxyEvent, context: Context): P
         //checking if all the product ids exist
         if (products.length === orderRequest.productIds.length) {
             const order = buildOrder(orderRequest, products)
-            const orderCreated = await orderRepository.insertOrder(order)
+            
+            //I will not use await here because I want the sns topic to start executing in parallel
+            const orderCreatedPromise = orderRepository.insertOrder(order)
             
             //sns
-            const eventResult = await sendOrderEvent(orderCreated, OrderEventType.CREATED, lambdaRequestId)
-            console.log(`Order created event sent - OrderId: ${orderCreated.sk}
-            - MessageId: ${eventResult.MessageId}`)
+            const eventResultPromise = sendOrderEvent(order, OrderEventType.CREATED, lambdaRequestId)
+            const results = await Promise.all([orderCreatedPromise, eventResultPromise])
+
+            console.log(`Order created event sent - OrderId: ${order.sk}
+            - MessageId: ${results[1].MessageId}`)
 
             return {
                 statusCode: 201,
-                body: JSON.stringify(convertToOrderResponse(orderCreated))
+                body: JSON.stringify(convertToOrderResponse(order))
             }
         } else {
             return {
@@ -138,6 +143,8 @@ function buildOrder (orderRequest: OrderRequest, products: Product[]): Order {
 
     const order: Order = {
         pk: orderRequest.email,
+        sk: uuid(),
+        createdAt: Date.now(),
         billing: {
             payment: orderRequest.payment,
             totalPrice: totalPrice
