@@ -51,6 +51,10 @@ export class OrdersAppStack extends cdk.Stack {
         const orderEventsLayerArn = ssm.StringParameter.valueForStringParameter(this, "OrderEventsLayerVersionArn")
         const orderEventsLayer = lambda.LayerVersion.fromLayerVersionArn(this, "OrderEventsLayerVersionArn", orderEventsLayerArn)
 
+        //This stack will use the order events repository layer
+        const orderEventsRepositoryLayerArn = ssm.StringParameter.valueForStringParameter(this, "OrderEventsRepositoryLayerVersionArn")
+        const orderEventsRepositoryLayer = lambda.LayerVersion.fromLayerVersionArn(this, "OrderEventsRepositoryLayerVersionArn", orderEventsRepositoryLayerArn)
+
         //sns topic
         const ordersTopic = new sns.Topic(this, "OrderEventsTopic", {
             displayName: "Order events topic",
@@ -94,7 +98,7 @@ export class OrdersAppStack extends cdk.Stack {
             environment: {
                 EVENTS_DB: props.eventsdb.tableName
             },
-            layers: [orderEventsLayer],
+            layers: [orderEventsLayer, orderEventsRepositoryLayer],
             tracing: lambda.Tracing.ACTIVE,
             insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
         })
