@@ -105,7 +105,6 @@ export class OrdersAppStack extends cdk.Stack {
             tracing: lambda.Tracing.ACTIVE,
             insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
         })
-
         ordersTopic.addSubscription(new subscribe.LambdaSubscription(orderEventsHandler))
 
         //The function OrderEventsHandler will have this permission
@@ -119,7 +118,6 @@ export class OrdersAppStack extends cdk.Stack {
                 }
             }
         })
-
         orderEventsHandler.addToRolePolicy(eventsdbPolicy)
 
         const billingHandler = new lambdaNodeJS.NodejsFunction(this, "BillingFunction", {
@@ -135,7 +133,6 @@ export class OrdersAppStack extends cdk.Stack {
             tracing: lambda.Tracing.ACTIVE,
             insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
         })
-
         ordersTopic.addSubscription(new subscribe.LambdaSubscription(billingHandler, {
             filterPolicy: {
                 eventType: sns.SubscriptionFilter.stringFilter({
@@ -150,7 +147,23 @@ export class OrdersAppStack extends cdk.Stack {
             enforceSSL: false,
             encryption: sqs.QueueEncryption.UNENCRYPTED
         })
-
         ordersTopic.addSubscription(new subscribe.SqsSubscription(orderEventsQueue))
+
+        const orderEmailsHandler = new lambdaNodeJS.NodejsFunction(this, "OrderEmailsFunction", {
+            functionName: "OrderEmailsFunction",
+            entry: "lambda/orders/orderEmailsFunction.ts",
+            handler: "handler",
+            memorySize: 128,
+            timeout: cdk.Duration.seconds(2),
+            bundling: {
+                minify: true,
+                sourceMap: false
+            },
+            layers: [orderEventsLayer],
+            tracing: lambda.Tracing.ACTIVE,
+            insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
+        })
+        orderEmailsHandler.addEventSource(new lambdaEventSource.SqsEventSource(orderEventsQueue))
+        orderEventsQueue.grantConsumeMessages(orderEmailsHandler)
     }
 }
