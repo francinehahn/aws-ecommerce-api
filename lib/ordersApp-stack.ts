@@ -7,6 +7,9 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb"
 import * as sns from "aws-cdk-lib/aws-sns"
 import * as subscribe from "aws-cdk-lib/aws-sns-subscriptions"
 import * as iam from "aws-cdk-lib/aws-iam"
+import * as sqs from "aws-cdk-lib/aws-sqs"
+import * as lambdaEventSource from "aws-cdk-lib/aws-lambda-event-sources"
+import { SqlServerEngineVersion } from "aws-cdk-lib/aws-rds"
 
 interface OrdersAppStackProps extends cdk.StackProps {
     //this table was created on the productsApp-stack file
@@ -140,5 +143,14 @@ export class OrdersAppStack extends cdk.Stack {
                 })
             }
         }))
+
+        //sqs will receive messages from the sns topic
+        const orderEventsQueue = new sqs.Queue(this, "OrderEventsQueue", {
+            queueName: "order-events",
+            enforceSSL: false,
+            encryption: sqs.QueueEncryption.UNENCRYPTED
+        })
+
+        ordersTopic.addSubscription(new subscribe.SqsSubscription(orderEventsQueue))
     }
 }
