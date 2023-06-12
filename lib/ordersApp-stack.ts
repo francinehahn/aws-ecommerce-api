@@ -121,7 +121,7 @@ export class OrdersAppStack extends cdk.Stack {
 
         const billingHandler = new lambdaNodeJS.NodejsFunction(this, "BillingFunction", {
             functionName: "BillingFunction",
-            entry: "lambda/orders/BillingFunction.ts",
+            entry: "lambda/orders/billingFunction.ts",
             handler: "handler",
             memorySize: 128,
             timeout: cdk.Duration.seconds(2),
