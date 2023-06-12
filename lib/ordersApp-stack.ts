@@ -141,11 +141,23 @@ export class OrdersAppStack extends cdk.Stack {
             }
         }))
 
+        //Dead letter queue
+        const orderEventsDlq = new sqs.Queue(this, "OrderEventsDlq", {
+            queueName: "order-events-dlq",
+            enforceSSL: false,
+            encryption: sqs.QueueEncryption.UNENCRYPTED,
+            retentionPeriod: cdk.Duration.days(10) //the default is 4 days
+        })
+
         //sqs will receive messages from the sns topic
         const orderEventsQueue = new sqs.Queue(this, "OrderEventsQueue", {
             queueName: "order-events",
             enforceSSL: false,
-            encryption: sqs.QueueEncryption.UNENCRYPTED
+            encryption: sqs.QueueEncryption.UNENCRYPTED,
+            deadLetterQueue: {
+                maxReceiveCount: 3, //the lambda function will try to treat the message 3 times before sending it to the dlq
+                queue: orderEventsDlq
+            }
         })
         ordersTopic.addSubscription(new subscribe.SqsSubscription(orderEventsQueue, {
             filterPolicy: {
