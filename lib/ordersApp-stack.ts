@@ -108,11 +108,11 @@ export class OrdersAppStack extends cdk.Stack {
         //The function OrderEventsHandler will have this permission
         const eventsdbPolicy = new iam.PolicyStatement({
             effect: iam.Effect.ALLOW,
-            actions: ["dynamodb: PutItem"],
+            actions: ["dynamodb:PutItem"],
             resources: [props.eventsdb.tableArn],
             conditions: {
-                ["ForAllValues: StringLike"]: {
-                    "dynamodb: LeadingKeys": ["#order_*"]
+                ["ForAllValues:StringLike"]: {
+                    "dynamodb:LeadingKeys": ["#order_*"]
                 }
             }
         })
