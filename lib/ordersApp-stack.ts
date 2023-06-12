@@ -7,6 +7,9 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb"
 import * as sns from "aws-cdk-lib/aws-sns"
 import * as subscribe from "aws-cdk-lib/aws-sns-subscriptions"
 import * as iam from "aws-cdk-lib/aws-iam"
+import * as sqs from "aws-cdk-lib/aws-sqs"
+import * as lambdaEventSource from "aws-cdk-lib/aws-lambda-event-sources"
+import { SqlServerEngineVersion } from "aws-cdk-lib/aws-rds"
 
 interface OrdersAppStackProps extends cdk.StackProps {
     //this table was created on the productsApp-stack file
@@ -102,7 +105,6 @@ export class OrdersAppStack extends cdk.Stack {
             tracing: lambda.Tracing.ACTIVE,
             insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
         })
-
         ordersTopic.addSubscription(new subscribe.LambdaSubscription(orderEventsHandler))
 
         //The function OrderEventsHandler will have this permission
@@ -116,7 +118,6 @@ export class OrdersAppStack extends cdk.Stack {
                 }
             }
         })
-
         orderEventsHandler.addToRolePolicy(eventsdbPolicy)
 
         const billingHandler = new lambdaNodeJS.NodejsFunction(this, "BillingFunction", {
@@ -132,7 +133,6 @@ export class OrdersAppStack extends cdk.Stack {
             tracing: lambda.Tracing.ACTIVE,
             insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
         })
-
         ordersTopic.addSubscription(new subscribe.LambdaSubscription(billingHandler, {
             filterPolicy: {
                 eventType: sns.SubscriptionFilter.stringFilter({
@@ -140,5 +140,52 @@ export class OrdersAppStack extends cdk.Stack {
                 })
             }
         }))
+
+        //Dead letter queue
+        const orderEventsDlq = new sqs.Queue(this, "OrderEventsDlq", {
+            queueName: "order-events-dlq",
+            enforceSSL: false,
+            encryption: sqs.QueueEncryption.UNENCRYPTED,
+            retentionPeriod: cdk.Duration.days(10) //the default is 4 days
+        })
+
+        //sqs will receive messages from the sns topic
+        const orderEventsQueue = new sqs.Queue(this, "OrderEventsQueue", {
+            queueName: "order-events",
+            enforceSSL: false,
+            encryption: sqs.QueueEncryption.UNENCRYPTED,
+            deadLetterQueue: {
+                maxReceiveCount: 3, //the lambda function will try to treat the message 3 times before sending it to the dlq
+                queue: orderEventsDlq
+            }
+        })
+        ordersTopic.addSubscription(new subscribe.SqsSubscription(orderEventsQueue, {
+            filterPolicy: {
+                eventType: sns.SubscriptionFilter.stringFilter({
+                    allowlist: ["ORDER_CREATED"]
+                })
+            }
+        }))
+
+        const orderEmailsHandler = new lambdaNodeJS.NodejsFunction(this, "OrderEmailsFunction", {
+            functionName: "OrderEmailsFunction",
+            entry: "lambda/orders/orderEmailsFunction.ts",
+            handler: "handler",
+            memorySize: 128,
+            timeout: cdk.Duration.seconds(2),
+            bundling: {
+                minify: true,
+                sourceMap: false
+            },
+            layers: [orderEventsLayer],
+            tracing: lambda.Tracing.ACTIVE,
+            insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
+        })
+        orderEmailsHandler.addEventSource(new lambdaEventSource.SqsEventSource(orderEventsQueue, {
+            batchSize: 5,
+            enabled: true,
+            maxBatchingWindow: cdk.Duration.minutes(1)
+        }))
+        orderEventsQueue.grantConsumeMessages(orderEmailsHandler)
     }
 }
