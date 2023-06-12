@@ -210,6 +210,12 @@ function sendOrderEvent (order: Order, eventType: OrderEventType, lambdaRequestI
     
     return snsclient.publish({
         TopicArn: orderEventsTopicArn,
-        Message: JSON.stringify(envelope)
+        Message: JSON.stringify(envelope),
+        MessageAttributes: {
+            eventType: {
+                DataType: "String",
+                StringValue: eventType // "ORDER_CREATED" or "ORDER_DELETED"
+            }
+        }
     }).promise()
 }
