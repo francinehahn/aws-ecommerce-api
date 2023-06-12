@@ -1,5 +1,4 @@
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
-import {v4 as uuid} from "uuid"
 
 export interface OrderProduct {
     code: string,
@@ -8,8 +7,8 @@ export interface OrderProduct {
 
 export interface Order {
     pk: string,
-    sk?: string,
-    createdAt?: number,
+    sk: string,
+    createdAt: number,
     shipping: {
         type: "URGENT" | "ECONOMIC",
         carrier: "CORREIOS" | "FEDEX"
@@ -31,9 +30,6 @@ export class OrderRepository {
     }
 
     async insertOrder (order: Order): Promise<Order> {
-        order.sk = uuid()
-        order.createdAt = Date.now()
-
         await this.dbclient.put({
             TableName: this.ordersdb,
             Item: order
