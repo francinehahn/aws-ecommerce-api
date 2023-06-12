@@ -147,7 +147,13 @@ export class OrdersAppStack extends cdk.Stack {
             enforceSSL: false,
             encryption: sqs.QueueEncryption.UNENCRYPTED
         })
-        ordersTopic.addSubscription(new subscribe.SqsSubscription(orderEventsQueue))
+        ordersTopic.addSubscription(new subscribe.SqsSubscription(orderEventsQueue, {
+            filterPolicy: {
+                eventType: sns.SubscriptionFilter.stringFilter({
+                    allowlist: ["ORDER_CREATED"]
+                })
+            }
+        }))
 
         const orderEmailsHandler = new lambdaNodeJS.NodejsFunction(this, "OrderEmailsFunction", {
             functionName: "OrderEmailsFunction",
