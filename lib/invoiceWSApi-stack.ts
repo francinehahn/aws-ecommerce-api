@@ -45,8 +45,32 @@ export class InvoiceWSApiStack extends cdk.Stack {
 
 
         //WebSocket connection handler
+        const connectionHandler = new lambdaNodeJS.NodejsFunction(this, "InvoiceConnectionFunction", {
+            functionName: "InvoiceConnectionFunction",
+            entry: "lambda/invoices/invoiceConnectionFunction.ts",
+            handler: "handler",
+            memorySize: 128,
+            timeout: cdk.Duration.seconds(2),
+            bundling: {
+                minify: true,
+                sourceMap: false
+            },
+            tracing: lambda.Tracing.ACTIVE,
+        })
 
         //WebSocket disconnection handler
+        const dicconnectionHandler = new lambdaNodeJS.NodejsFunction(this, "InvoiceDisconnectionFunction", {
+            functionName: "InvoiceDisconnectionFunction",
+            entry: "lambda/invoices/invoiceDisconnectionFunction.ts",
+            handler: "handler",
+            memorySize: 128,
+            timeout: cdk.Duration.seconds(2),
+            bundling: {
+                minify: true,
+                sourceMap: false
+            },
+            tracing: lambda.Tracing.ACTIVE,
+        })
 
         //WebSocket API
 
