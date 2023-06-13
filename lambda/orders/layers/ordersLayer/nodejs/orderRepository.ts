@@ -17,7 +17,7 @@ export interface Order {
         payment: "CASH" | "DEBIT_CARD" | "CREDIT_CARD",
         totalPrice: number
     },
-    products: OrderProduct[]
+    products?: OrderProduct[]
 }
 
 export class OrderRepository {
@@ -40,7 +40,8 @@ export class OrderRepository {
 
     async getAllOrders (): Promise<Order[]> {
         const data = await this.dbclient.scan({
-            TableName: this.ordersdb
+            TableName: this.ordersdb,
+            ProjectionExpression: "pk, sk, createdAt, shipping, billing" //this will exclude the products from the return data
         }).promise()
 
         return data.Items as Order[]
@@ -52,7 +53,8 @@ export class OrderRepository {
             KeyConditionExpression: "pk = :email",
             ExpressionAttributeValues: {
                 ":email": email
-            }
+            },
+            ProjectionExpression: "pk, sk, createdAt, shipping, billing" //this will exclude the products from the return data
         }).promise()
 
         return data.Items as Order[]
