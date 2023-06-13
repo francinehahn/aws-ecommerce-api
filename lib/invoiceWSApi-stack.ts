@@ -190,6 +190,13 @@ export class InvoiceWSApiStack extends cdk.Stack {
         cancelImportHandler.addToRolePolicy(invoicesDbReadWriteTransactionPolicy)
         webSocketApi.grantManageConnections(cancelImportHandler)
 
-        //WebSocket API  routes
+        //WebSocket API routes
+        webSocketApi.addRoute("getImportUrl", {
+            integration: new apigatewayv2_integrations.WebSocketLambdaIntegration("GetUrlHandler", getUrlHandler)
+        })
+
+        webSocketApi.addRoute("cancelImport", {
+            integration: new apigatewayv2_integrations.WebSocketLambdaIntegration("CancelImportHandler", cancelImportHandler)
+        })
     }
 }
