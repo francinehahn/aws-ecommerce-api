@@ -25,6 +25,18 @@ export class EventsDbStack extends cdk.Stack {
             //writeCapacity: 1 //on the provisioned billing mode
         })
 
+        this.table.addGlobalSecondaryIndex({
+            indexName: "emailIndex",
+            partitionKey: {
+                name: "email",
+                type: dynamodb.AttributeType.STRING
+            },
+            sortKey: {
+                name: "sk",
+                type: dynamodb.AttributeType.STRING
+            },
+            projectionType: dynamodb.ProjectionType.ALL //it will return all the attributes in the table
+        })
 
         //Example of auto-scaling with the provisioned billing mode
         /*
