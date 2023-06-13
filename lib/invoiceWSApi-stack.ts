@@ -82,6 +82,13 @@ export class InvoiceWSApiStack extends cdk.Stack {
             }
         })
 
+        const stage = "prod"
+        const wsApiEndpoint = `${webSocketApi.apiEndpoint}/${stage}`
+        new apigatewayv2.WebSocketStage(this, "InvoiceWSApiStage", {
+            webSocketApi: webSocketApi,
+            stageName: stage,
+            autoDeploy: true
+        })
 
         //Invoice URL handler
 
