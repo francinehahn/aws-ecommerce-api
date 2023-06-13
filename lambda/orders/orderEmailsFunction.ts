@@ -33,12 +33,12 @@ function sendOrderEmail (body: SNSMessage) {
         Message: {
             Body: {
                 Text: {
-                    Charset: "UFT-8",
+                    Charset: "UTF-8",
                     Data: `Recebemos o seu pedido de número ${event.orderId} no valor de ${event.billing.totalPrice}`
                 }
             },
             Subject: {
-                Charset: "UFT-8",
+                Charset: "UTF-8",
                 Data: `Recebemos o seu pedido!`
             }
         },
