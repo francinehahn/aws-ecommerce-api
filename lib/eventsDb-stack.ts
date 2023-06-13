@@ -20,11 +20,14 @@ export class EventsDbStack extends cdk.Stack {
                 type: dynamodb.AttributeType.STRING
             },
             timeToLiveAttribute: "ttl", //it's the attribute name in our table that represents the time the information must be kept in our db
-            billingMode: dynamodb.BillingMode.PROVISIONED,
-            readCapacity: 1,
-            writeCapacity: 1
+            billingMode: dynamodb.BillingMode.PAY_PER_REQUEST, //on demand
+            //readCapacity: 1, //on the provisioned billing mode
+            //writeCapacity: 1 //on the provisioned billing mode
         })
 
+
+        //Example of auto-scaling with the provisioned billing mode
+        /*
         const readScale = this.table.autoScaleReadCapacity({
             maxCapacity: 2,
             minCapacity: 1
@@ -43,6 +46,6 @@ export class EventsDbStack extends cdk.Stack {
             targetUtilizationPercent: 50, //if the writing capacity reaches 50%, the table will increase 1 write capacity
             scaleInCooldown: cdk.Duration.seconds(60),
             scaleOutCooldown: cdk.Duration.seconds(60)
-        })
+        })*/
     }
 }
