@@ -14,29 +14,34 @@ https://documenter.getpostman.com/view/26335922/2s93sc3rmW
 https://rgxypz5u56.execute-api.us-east-1.amazonaws.com/prod/
 
 ## ☑️Requests created:
-- `Products:`
+`Products:`
 - Get All Products
 - Get Product By Id
 - Create Product
 - Update Product
 - Delete Product
-- `Orders:`
+`Orders:`
 - Get All Orders
 - Get All Orders From A Client
 - Get An Order From A Client
 - Create An Order
 - Delete An Order
+`Events:`
+- Get Events By Email
+- Get Events By Email And Event Type
 
 ## 💻 Technologies:
 - Typescript
 - Node.js
 - AWS Lambda
 - AWS API Gateway (REST)
+- WebSocket API do API Gateway
 - AWS Simple Notification Service (SNS)
 - AWS Simple Queue Service (SQS)
 - AWS Simple Email Service (SES)
 - AWS Cloud Watch
 - AWS X-Ray
+- AWS Simple Storage Service (S3)
 - DynamoDB (noSQL database)
 - AWS Cloud Development Kit (CDK)
 

@@ -8,6 +8,8 @@ import { ProductsAppLayersStack } from '../lib/productsAppLayers-stack'
 import { EventsDbStack } from '../lib/eventsDb-stack'
 import { OrdersAppLayersStack } from '../lib/ordersAppLayers-stack'
 import { OrdersAppStack } from '../lib/ordersApp-stack'
+import { InvoiceWSApiStack } from '../lib/invoiceWSApi-stack'
+import { InvoicesAppLayersStack } from '../lib/invoicesAppLayers-stack'
 
 dotenv.config()
 
@@ -74,3 +76,22 @@ const ecommerceApiStack = new EcommerceApiStack(app, "EcommerceApi", {
 
 ecommerceApiStack.addDependency(productsAppStack)
 ecommerceApiStack.addDependency(ordersAppStack)
+
+//Invoices App Layers Stack
+const invoicesAppLayersStack = new InvoicesAppLayersStack(app, "InvoicesAppLayer", {
+  tags: {
+    cost: "InvoiceApp",
+    team: "FrancineHahn"
+  },
+  env: env
+})
+
+//Invoice WS Api Stack
+const invoiceWSApiStack = new InvoiceWSApiStack(app, "InvoiceApi", {
+  tags: {
+    cost: "InvoiceApp",
+    team: "FrancineHahn"
+  },
+  env: env
+})
+invoiceWSApiStack.addDependency(invoicesAppLayersStack)
