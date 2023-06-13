@@ -1,6 +1,6 @@
 import * as cdk from "aws-cdk-lib"
-import * as apigatewayv2 from "@aws-cdk/aws-apigatewayv2"
-import * as apigatewayv2_integrations from "@aws-cdk/aws-apigatewayv2-integrations"
+import * as apigatewayv2 from "@aws-cdk/aws-apigatewayv2-alpha"
+import * as apigatewayv2_integrations from "@aws-cdk/aws-apigatewayv2-integrations-alpha"
 import * as lambdaNodeJS from "aws-cdk-lib/aws-lambda-nodejs"
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb"
 import * as lambda from "aws-cdk-lib/aws-lambda"
@@ -43,7 +43,6 @@ export class InvoiceWSApiStack extends cdk.Stack {
             ]
         })
 
-
         //WebSocket connection handler
         const connectionHandler = new lambdaNodeJS.NodejsFunction(this, "InvoiceConnectionFunction", {
             functionName: "InvoiceConnectionFunction",
@@ -59,7 +58,7 @@ export class InvoiceWSApiStack extends cdk.Stack {
         })
 
         //WebSocket disconnection handler
-        const dicconnectionHandler = new lambdaNodeJS.NodejsFunction(this, "InvoiceDisconnectionFunction", {
+        const disconnectionHandler = new lambdaNodeJS.NodejsFunction(this, "InvoiceDisconnectionFunction", {
             functionName: "InvoiceDisconnectionFunction",
             entry: "lambda/invoices/invoiceDisconnectionFunction.ts",
             handler: "handler",
@@ -73,6 +72,16 @@ export class InvoiceWSApiStack extends cdk.Stack {
         })
 
         //WebSocket API
+        const webSocketApi = new apigatewayv2.WebSocketApi(this, "InvoiceWSApi", {
+            apiName: "InvoiceWSApi",
+            connectRouteOptions: {
+                integration: new apigatewayv2_integrations.WebSocketLambdaIntegration("ConnectionHandler", connectionHandler)
+            },
+            disconnectRouteOptions: {
+                integration: new apigatewayv2_integrations.WebSocketLambdaIntegration("DisconnectionHandler", disconnectionHandler)
+            }
+        })
+
 
         //Invoice URL handler
 
