@@ -119,7 +119,16 @@ export class InvoiceWSApiStack extends cdk.Stack {
                 }
             }
         })
+
+        const invoicesBucketPutObjectPolicy = new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions: ["s3:PutObject"],
+            resources: [`${bucket.bucketArn}/*`], // "/*" means to have access to the entire bucket
+        })
+
         getUrlHandler.addToRolePolicy(invoicesDbWriteTransactionPolicy)
+        getUrlHandler.addToRolePolicy(invoicesBucketPutObjectPolicy)
+        webSocketApi.grantManageConnections(getUrlHandler)
 
         //Invoice import handler
 
