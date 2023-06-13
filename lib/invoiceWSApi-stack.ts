@@ -16,15 +16,15 @@ export class InvoiceWSApiStack extends cdk.Stack {
 
         //This stack will use the invoice transaction layer
         const invoiceTransactionLayerArn = ssm.StringParameter.valueForStringParameter(this, "InvoiceTransactionLayerVersionArn")
-        const invoiceTransactionLayer = lambda.LayerVersion.fromLayerVersionArn(this, "InvoiceTransactionLayerVersionArn", invoiceTransactionLayerArn)
+        const invoiceTransactionLayer = lambda.LayerVersion.fromLayerVersionArn(this, "InvoiceTransactionLayer", invoiceTransactionLayerArn)
 
         //This stack will use the invoice layer
         const invoiceLayerArn = ssm.StringParameter.valueForStringParameter(this, "InvoiceRepositoryLayerVersionArn")
-        const invoiceLayer = lambda.LayerVersion.fromLayerVersionArn(this, "InvoiceRepositoryLayerVersionArn", invoiceLayerArn)
+        const invoiceLayer = lambda.LayerVersion.fromLayerVersionArn(this, "InvoiceRepositoryLayer", invoiceLayerArn)
 
         //This stack will use the invoice websocket API layer
         const invoiceWSConnectionLayerArn = ssm.StringParameter.valueForStringParameter(this, "InvoiceWSConnectionLayerVersionArn")
-        const invoiceWSConnectionLayer = lambda.LayerVersion.fromLayerVersionArn(this, "InvoiceWSConnectionLayerVersionArn", invoiceWSConnectionLayerArn)
+        const invoiceWSConnectionLayer = lambda.LayerVersion.fromLayerVersionArn(this, "InvoiceWSConnectionLayer", invoiceWSConnectionLayerArn)
 
         //Invoice and invoice transaction DB
         const invoicesDb = new dynamodb.Table(this, "InvoicesDb", {
