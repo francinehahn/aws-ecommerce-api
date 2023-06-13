@@ -91,6 +91,35 @@ export class InvoiceWSApiStack extends cdk.Stack {
         })
 
         //Invoice URL handler
+        const getUrlHandler = new lambdaNodeJS.NodejsFunction(this, "InvoiceGetUrlFunction", {
+            functionName: "InvoiceGetUrlFunction",
+            entry: "lambda/invoices/invoiceGetUrlFunction.ts",
+            handler: "handler",
+            memorySize: 128,
+            timeout: cdk.Duration.seconds(2),
+            bundling: {
+                minify: true,
+                sourceMap: false
+            },
+            tracing: lambda.Tracing.ACTIVE,
+            environment: {
+                INVOICE_DB: invoicesDb.tableName,
+                BUCKET_NAME: bucket.bucketName, //cdk created a name for us
+                INVOICE_WSAPI_ENDPOINT: wsApiEndpoint
+            }
+        })
+
+        const invoicesDbWriteTransactionPolicy = new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions: ["dynamodb:PutItem"],
+            resources: [invoicesDb.tableArn],
+            conditions: {
+                ["ForAllValues:StringLike"]: {
+                    "dynamodb:LeadingKeys": ["#transaction"]
+                }
+            }
+        })
+        getUrlHandler.addToRolePolicy(invoicesDbWriteTransactionPolicy)
 
         //Invoice import handler
 
