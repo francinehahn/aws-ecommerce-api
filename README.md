@@ -34,6 +34,7 @@ https://rgxypz5u56.execute-api.us-east-1.amazonaws.com/prod/
 - AWS API Gateway (REST)
 - AWS Simple Notification Service (SNS)
 - AWS Simple Queue Service (SQS)
+- AWS Simple Email Service (SES)
 - AWS Cloud Watch
 - AWS X-Ray
 - DynamoDB (noSQL database)
