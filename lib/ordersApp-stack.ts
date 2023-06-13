@@ -9,7 +9,6 @@ import * as subscribe from "aws-cdk-lib/aws-sns-subscriptions"
 import * as iam from "aws-cdk-lib/aws-iam"
 import * as sqs from "aws-cdk-lib/aws-sqs"
 import * as lambdaEventSource from "aws-cdk-lib/aws-lambda-event-sources"
-import { SqlServerEngineVersion } from "aws-cdk-lib/aws-rds"
 
 interface OrdersAppStackProps extends cdk.StackProps {
     //this table was created on the productsApp-stack file
