@@ -25,6 +25,7 @@ export class OrdersAppStack extends cdk.Stack {
 
         const ordersdb = new dynamodb.Table(this, "OrdersDb", {
             tableName: "orders",
+            removalPolicy: cdk.RemovalPolicy.DESTROY, //the default is that when the stack is removed, the table is maintained
             partitionKey: {
                 name: "pk",
                 type: dynamodb.AttributeType.STRING
