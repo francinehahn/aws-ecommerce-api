@@ -29,7 +29,7 @@ function createEvent (body: SNSMessage) {
     console.log(`Order event - MessageId: ${body.MessageId}`)
 
     const timestamp = Date.now()
-    const ttl = ~~(timestamp / 1000 + 5 * 60) //5 minutes
+    const ttl = ~~((timestamp / 1000) + (24 * 7 * 60 * 60)) //7 days
 
     const orderEventDb: OrderEventDb = {
         pk: `#order_${event.orderId}`,
