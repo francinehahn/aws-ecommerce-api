@@ -123,7 +123,7 @@ export class InvoiceWSApiStack extends cdk.Stack {
         const invoicesBucketPutObjectPolicy = new iam.PolicyStatement({
             effect: iam.Effect.ALLOW,
             actions: ["s3:PutObject"],
-            resources: [`${bucket.bucketArn}/*`], // "/*" means to have access to the entire bucket
+            resources: [`${bucket.bucketArn}/*`] // "/*" means to have access to the entire bucket
         })
 
         getUrlHandler.addToRolePolicy(invoicesDbWriteTransactionPolicy)
@@ -131,6 +131,33 @@ export class InvoiceWSApiStack extends cdk.Stack {
         webSocketApi.grantManageConnections(getUrlHandler)
 
         //Invoice import handler
+        const invoiceImportHandler = new lambdaNodeJS.NodejsFunction(this, "InvoiceImportFunction", {
+            functionName: "InvoiceImportFunction",
+            entry: "lambda/invoices/invoiceImportFunction.ts",
+            handler: "handler",
+            memorySize: 128,
+            timeout: cdk.Duration.seconds(2),
+            bundling: {
+                minify: true,
+                sourceMap: false
+            },
+            tracing: lambda.Tracing.ACTIVE,
+            environment: {
+                INVOICE_DB: invoicesDb.tableName,
+                INVOICE_WSAPI_ENDPOINT: wsApiEndpoint
+            }
+        })
+        invoicesDb.grantReadWriteData(invoiceImportHandler)
+
+        bucket.addEventNotification(s3.EventType.OBJECT_CREATED_PUT, new s3n.LambdaDestination(invoiceImportHandler))
+
+        const invoicesBucketGetDeleteObjectPolicy = new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions: ["s3:DeleteObject", "s3:GetObject"],
+            resources: [`${bucket.bucketArn}/*`]
+        })
+        invoiceImportHandler.addToRolePolicy(invoicesBucketGetDeleteObjectPolicy)
+        webSocketApi.grantManageConnections(invoiceImportHandler)
 
         //Cancel import handler
 
