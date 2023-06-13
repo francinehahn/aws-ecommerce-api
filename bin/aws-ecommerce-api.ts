@@ -77,8 +77,8 @@ const ecommerceApiStack = new EcommerceApiStack(app, "EcommerceApi", {
 ecommerceApiStack.addDependency(productsAppStack)
 ecommerceApiStack.addDependency(ordersAppStack)
 
-//Invoice WS Api Stack
-const invoiceWSApiStack = new InvoiceWSApiStack(app, "InvoiceApi", {
+//Invoices App Layers Stack
+const invoicesAppLayersStack = new InvoicesAppLayersStack(app, "InvoicesAppLayer", {
   tags: {
     cost: "InvoiceApp",
     team: "FrancineHahn"
@@ -86,8 +86,8 @@ const invoiceWSApiStack = new InvoiceWSApiStack(app, "InvoiceApi", {
   env: env
 })
 
-//Invoices App Layers Stack
-const invoicesAppLayersStack = new InvoicesAppLayersStack(app, "InvoicesAppLayer", {
+//Invoice WS Api Stack
+const invoiceWSApiStack = new InvoiceWSApiStack(app, "InvoiceApi", {
   tags: {
     cost: "InvoiceApp",
     team: "FrancineHahn"
