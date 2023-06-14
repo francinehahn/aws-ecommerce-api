@@ -17,7 +17,17 @@ https://v64w7tbd25.execute-api.us-east-1.amazonaws.com/prod/
 wss://77ajekty87.execute-api.us-east-1.amazonaws.com/prod
 
 ## 🔗Documentation WEBSOCKET API:
-- DESCREVER COMO USAR!!!!!!!!!!!1
+- DESCREVER COMO USAR!!!!!!!!!!!
+WebSocket API has 2 endpoints: the invoice get url and the cancel import file. To test these endpoints, you need to use the WEBSOCKET API url provided above on Postman (use WebSocket request). Click on connect and send on the message field the following JSON:
+
+{
+    "action": "getImportUrl"
+}
+
+To cancel the import file, send on the message field:
+{
+    "action": "putImport"
+}
 
 ## ☑️Requests created:
 - `Products:`
