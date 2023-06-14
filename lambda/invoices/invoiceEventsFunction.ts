@@ -2,7 +2,6 @@ import * as xray from "aws-xray-sdk"
 import { AttributeValue, Context, DynamoDBStreamEvent } from "aws-lambda"
 import { ApiGatewayManagementApi, DynamoDB } from "aws-sdk"
 import { InvoiceWsService } from "/opt/nodejs/invoiceWSConnection"
-import { time } from "console"
 
 xray.captureAWS(require("aws-sdk"))
 
