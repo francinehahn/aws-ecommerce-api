@@ -10,10 +10,12 @@ import * as s3n from "aws-cdk-lib/aws-s3-notifications"
 import * as ssm from "aws-cdk-lib/aws-ssm"
 import * as sqs from "aws-cdk-lib/aws-sqs"
 import * as lambdaEventSource from "aws-cdk-lib/aws-lambda-event-sources"
+import * as event from "aws-cdk-lib/aws-events"
 import { Construct } from "constructs"
 
 interface InvoiceWSApiStackProps extends cdk.StackProps {
-    eventsDb: dynamodb.Table
+    eventsDb: dynamodb.Table,
+    auditBus: event.EventBus
 }
 
 export class InvoiceWSApiStack extends cdk.Stack {
@@ -166,10 +168,12 @@ export class InvoiceWSApiStack extends cdk.Stack {
             tracing: lambda.Tracing.ACTIVE,
             environment: {
                 INVOICE_DB: invoicesDb.tableName,
-                INVOICE_WSAPI_ENDPOINT: wsApiEndpoint
+                INVOICE_WSAPI_ENDPOINT: wsApiEndpoint,
+                AUDIT_BUS_NAME: props.auditBus.eventBusName
             }
         })
         invoicesDb.grantReadWriteData(invoiceImportHandler)
+        props.auditBus.grantPutEventsTo(invoiceImportHandler)
 
         bucket.addEventNotification(s3.EventType.OBJECT_CREATED_PUT, new s3n.LambdaDestination(invoiceImportHandler))
 
@@ -237,10 +241,12 @@ export class InvoiceWSApiStack extends cdk.Stack {
             tracing: lambda.Tracing.ACTIVE,
             environment: {
                 EVENTS_DB: props.eventsDb.tableName,
-                INVOICE_WSAPI_ENDPOINT: wsApiEndpoint
+                INVOICE_WSAPI_ENDPOINT: wsApiEndpoint,
+                AUDIT_BUS_NAME: props.auditBus.eventBusName
             }
         })
         webSocketApi.grantManageConnections(invoiceEventsHandler)
+        props.auditBus.grantPutEventsTo(invoiceEventsHandler)
 
         //The function InvoiceEventsHandler will have this permission
         const eventsdbPolicy = new iam.PolicyStatement({
