@@ -41,7 +41,8 @@ export class InvoiceWSApiStack extends cdk.Stack {
                 type: dynamodb.AttributeType.STRING,
             },
             timeToLiveAttribute: "ttl",
-            removalPolicy: cdk.RemovalPolicy.DESTROY //the ideal is always to retain the table
+            removalPolicy: cdk.RemovalPolicy.DESTROY, //the ideal is always to retain the table
+            stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES //the table will invoke a lambda function
         })
 
         //Invoice bucket
