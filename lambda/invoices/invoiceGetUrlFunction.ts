@@ -1,5 +1,5 @@
 import * as xray from "aws-xray-sdk"
-import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda"
+import { APIGatewayProxyEvent, Context } from "aws-lambda"
 import { ApiGatewayManagementApi, DynamoDB, S3 } from "aws-sdk"
 import {v4 as uuid} from "uuid"
 import { InvoiceTransactionStatus, InvoiceTransactionRepository } from "/opt/nodejs/invoiceTransaction"
