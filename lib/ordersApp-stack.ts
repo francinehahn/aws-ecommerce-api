@@ -10,6 +10,9 @@ import * as iam from "aws-cdk-lib/aws-iam"
 import * as sqs from "aws-cdk-lib/aws-sqs"
 import * as event from "aws-cdk-lib/aws-events"
 import * as lambdaEventSource from "aws-cdk-lib/aws-lambda-event-sources"
+import * as logs from "aws-cdk-lib/aws-logs"
+import * as cloudWatch from "aws-cdk-lib/aws-cloudwatch"
+import * as cw_actions from "aws-cdk-lib/aws-cloudwatch-actions"
 
 interface OrdersAppStackProps extends cdk.StackProps {
     //this table was created on the productsApp-stack file
@@ -92,6 +95,34 @@ export class OrdersAppStack extends cdk.Stack {
         props.productsdb.grantReadData(this.ordersHandler)
         ordersTopic.grantPublish(this.ordersHandler)
         props.auditBus.grantPutEventsTo(this.ordersHandler)
+
+        //cloud watch alarm: metric
+        const productNotFoundMetricFilter = this.ordersHandler.logGroup.addMetricFilter("ProductNotFoundMetric", {
+            metricName: "OrderWithNonValidProduct",
+            metricNamespace: "ProductNotFound",
+            filterPattern: logs.FilterPattern.literal("Some product was not found")
+        })
+
+        //cloud watch alarm: alarm
+        const productNotFoundAlarm = productNotFoundMetricFilter.metric().with({
+            statistic: "Sum",
+            period: cdk.Duration.minutes(2)
+        }).createAlarm(this, "ProductNotFoundAlarm", {
+            alarmName: "OrderWithNonValidProduct",
+            alarmDescription: "Some product was not found while creating a new order",
+            evaluationPeriods: 1,
+            threshold: 2,
+            actionsEnabled: true,
+            comparisonOperator: cloudWatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD
+        })
+
+        //cloud watch alarm: action
+        const orderAlarmsTopic = new sns.Topic(this, "OrderAlarmsTopic", {
+            displayName: "Order Alarms Topic",
+            topicName: "order-alarms"
+        })
+        orderAlarmsTopic.addSubscription(new subscribe.EmailSubscription("fran_hahn@hotmail.com"))
+        productNotFoundAlarm.addAlarmAction(new cw_actions.SnsAction(orderAlarmsTopic))
 
         const orderEventsHandler = new lambdaNodeJS.NodejsFunction(this, "OrderEventsFunction", {
             functionName: "OrderEventsFunction",

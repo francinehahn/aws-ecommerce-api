@@ -89,6 +89,8 @@ export async function handler (event: APIGatewayProxyEvent, context: Context): P
                 body: JSON.stringify(convertToOrderResponse(order))
             }
         } else {
+            console.error("Some product was not found")
+
             const result = await eventBridgeClient.putEvents({
                 Entries: [
                     {
