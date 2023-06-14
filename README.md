@@ -14,19 +14,19 @@ https://documenter.getpostman.com/view/26335922/2s93sc3rmW
 https://v64w7tbd25.execute-api.us-east-1.amazonaws.com/prod/
 
 ## ☑️Requests created:
-`Products:`
+-`Products:`
 - Get All Products
 - Get Product By Id
 - Create Product
 - Update Product
 - Delete Product
-`Orders:`
+-`Orders:`
 - Get All Orders
 - Get All Orders From A Client
 - Get An Order From A Client
 - Create An Order
 - Delete An Order
-`Events:`
+-`Events:`
 - Get Events By Email
 - Get Events By Email And Event Type
 
