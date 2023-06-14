@@ -5,6 +5,7 @@ import * as lambdaNodeJS from "aws-cdk-lib/aws-lambda-nodejs"
 import * as sqs from "aws-cdk-lib/aws-sqs"
 import * as events from "aws-cdk-lib/aws-events"
 import * as targets from "aws-cdk-lib/aws-events-targets"
+import * as cloudWatch from "aws-cdk-lib/aws-cloudwatch"
 
 export class AuditEvetBusStack extends cdk.Stack {
     readonly bus: events.EventBus
@@ -109,5 +110,20 @@ export class AuditEvetBusStack extends cdk.Stack {
             queueName: "invoice-import-timeout"
         })
         timeoutImportInvoiceRule.addTarget(new targets.SqsQueue(invoiceImportTimeoutQueue))
+
+        //Cloud watch alarm: metric
+        const numberOfMessagesMetric = invoiceImportTimeoutQueue.metricApproximateNumberOfMessagesVisible({
+            period: cdk.Duration.minutes(2),
+            statistic: "Sum"
+        })
+
+        //Cloud watch alarm: alarm
+        numberOfMessagesMetric.createAlarm(this, "InvoiceImportTimeoutAlarm", {
+            alarmName: "InvoiceImportTimeout",
+            actionsEnabled: false,
+            evaluationPeriods: 1,
+            threshold: 5,
+            comparisonOperator: cloudWatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD
+        })
     }
 }
