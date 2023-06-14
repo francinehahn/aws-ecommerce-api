@@ -10,6 +10,7 @@ import { OrdersAppLayersStack } from '../lib/ordersAppLayers-stack'
 import { OrdersAppStack } from '../lib/ordersApp-stack'
 import { InvoiceWSApiStack } from '../lib/invoiceWSApi-stack'
 import { InvoicesAppLayersStack } from '../lib/invoicesAppLayers-stack'
+import { AuditEvetBusStack } from '../lib/auditEventBus-stack'
 
 dotenv.config()
 
@@ -24,6 +25,15 @@ const tags = {
   cost: "Ecommerce",
   team: "FrancineHahn"
 }
+
+//Audit Event Bus Stack
+const auditEventBusStack = new AuditEvetBusStack(app, "AuditEvents", {
+  tags: {
+    cost: "Audit",
+    team: "FrancineHahn"
+  },
+  env: env
+})
 
 //Products Layers stack
 const productsAppLayersStack = new ProductsAppLayersStack(app, "ProductsAppLayers", {
@@ -58,11 +68,13 @@ const ordersAppStack = new OrdersAppStack(app, "OrdersApp", {
   tags: tags,
   env: env,
   productsdb: productsAppStack.productsdb,
-  eventsdb: eventsDbStack.table
+  eventsdb: eventsDbStack.table,
+  auditBus: auditEventBusStack.bus
 })
 ordersAppStack.addDependency(productsAppStack)
 ordersAppStack.addDependency(ordersAppLayerStack)
 ordersAppStack.addDependency(eventsDbStack)
+ordersAppStack.addDependency(auditEventBusStack)
 
 //EcommerceApi stack
 const ecommerceApiStack = new EcommerceApiStack(app, "EcommerceApi", {
@@ -89,6 +101,7 @@ const invoicesAppLayersStack = new InvoicesAppLayersStack(app, "InvoicesAppLayer
 //Invoice WS Api Stack
 const invoiceWSApiStack = new InvoiceWSApiStack(app, "InvoiceApi", {
   eventsDb: eventsDbStack.table,
+  auditBus: auditEventBusStack.bus,
   tags: {
     cost: "InvoiceApp",
     team: "FrancineHahn"
@@ -97,3 +110,4 @@ const invoiceWSApiStack = new InvoiceWSApiStack(app, "InvoiceApi", {
 })
 invoiceWSApiStack.addDependency(invoicesAppLayersStack)
 invoiceWSApiStack.addDependency(eventsDbStack)
+invoiceWSApiStack.addDependency(auditEventBusStack)
