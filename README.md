@@ -11,23 +11,54 @@ This project is an API REST that simulates the back-end of an ecommerce.
 https://documenter.getpostman.com/view/26335922/2s93sc3rmW
 
 ## 🌐 Deploy API REST
-https://v64w7tbd25.execute-api.us-east-1.amazonaws.com/prod/
+https://lgsqgv19ml.execute-api.us-east-1.amazonaws.com/prod/
 
 ## 🌐 Deploy WEBSOCKET API
-wss://77ajekty87.execute-api.us-east-1.amazonaws.com/prod
+wss://thw4rndw60.execute-api.us-east-1.amazonaws.com/prod
 
 ## 🔗Documentation WEBSOCKET API:
-- DESCREVER COMO USAR!!!!!!!!!!!
-WebSocket API has 2 endpoints: the invoice get url and the cancel import file. To test these endpoints, you need to use the WEBSOCKET API url provided above on Postman (use WebSocket request). Click on connect and send on the message field the following JSON:
+WebSocket API has 2 endpoints:
+- Get Url Invoice
+- Cancel Import Invoice File
 
-{
+To test these endpoints, you need to use the WEBSOCKET API url (provided above) on Postman (use WebSocket request).
+To test the 'Get Url Invoice' endpoint: 
+
+<pre>
+  <code>Click on 'connect'</code>
+</pre>
+
+Write the following JSON message on the specified field:
+<pre>
+  <code>
+  {
     "action": "getImportUrl"
-}
+  }
+  </code>
+</pre>
+<pre>
+  <code>Click on 'send'</code>
+</pre>
 
-To cancel the import file, send on the message field:
-{
+You will receive a url that you can use on the 'Import Invoice File' endpoint.
+
+To test the 'Cancel Import Invoice File' endpoint:
+<pre>
+  <code>Click on 'connect'</code>
+</pre>
+
+Write the following JSON message on the specified field:
+<pre>
+  <code>
+  {
     "action": "putImport"
-}
+  }
+  </code>
+</pre>
+
+<pre>
+  <code>Click on 'send'</code>
+</pre>
 
 ## ☑️Requests created:
 - `Products:`
