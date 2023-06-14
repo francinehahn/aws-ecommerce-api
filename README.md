@@ -11,7 +11,7 @@ This project is an API REST that simulates the back-end of an ecommerce.
 https://documenter.getpostman.com/view/26335922/2s93sc3rmW
 
 ## 🌐 Deploy
-https://rgxypz5u56.execute-api.us-east-1.amazonaws.com/prod/
+https://v64w7tbd25.execute-api.us-east-1.amazonaws.com/prod/
 
 ## ☑️Requests created:
 `Products:`

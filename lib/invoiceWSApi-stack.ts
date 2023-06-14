@@ -8,10 +8,16 @@ import * as s3 from "aws-cdk-lib/aws-s3"
 import * as iam from "aws-cdk-lib/aws-iam"
 import * as s3n from "aws-cdk-lib/aws-s3-notifications"
 import * as ssm from "aws-cdk-lib/aws-ssm"
+import * as sqs from "aws-cdk-lib/aws-sqs"
+import * as lambdaEventSource from "aws-cdk-lib/aws-lambda-event-sources"
 import { Construct } from "constructs"
 
+interface InvoiceWSApiStackProps extends cdk.StackProps {
+    eventsDb: dynamodb.Table
+}
+
 export class InvoiceWSApiStack extends cdk.Stack {
-    constructor (scope: Construct, id: string, props?: cdk.StackProps) {
+    constructor (scope: Construct, id: string, props: InvoiceWSApiStackProps) {
         super(scope, id, props)
 
         //This stack will use the invoice transaction layer
@@ -41,7 +47,8 @@ export class InvoiceWSApiStack extends cdk.Stack {
                 type: dynamodb.AttributeType.STRING,
             },
             timeToLiveAttribute: "ttl",
-            removalPolicy: cdk.RemovalPolicy.DESTROY //the ideal is always to retain the table
+            removalPolicy: cdk.RemovalPolicy.DESTROY, //the ideal is always to retain the table
+            stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES //the table will invoke a lambda function
         })
 
         //Invoice bucket
@@ -214,5 +221,50 @@ export class InvoiceWSApiStack extends cdk.Stack {
         webSocketApi.addRoute("cancelImport", {
             integration: new apigatewayv2_integrations.WebSocketLambdaIntegration("CancelImportHandler", cancelImportHandler)
         })
+
+        // Invoice Events Handler
+        const invoiceEventsHandler = new lambdaNodeJS.NodejsFunction(this, "InvoiceEventsFunction", {
+            functionName: "InvoiceEventsFunction",
+            entry: "lambda/invoices/invoiceEventsFunction.ts",
+            handler: "handler",
+            memorySize: 128,
+            timeout: cdk.Duration.seconds(2),
+            bundling: {
+                minify: true,
+                sourceMap: false
+            },
+            layers: [invoiceWSConnectionLayer],
+            tracing: lambda.Tracing.ACTIVE,
+            environment: {
+                EVENTS_DB: props.eventsDb.tableName,
+                INVOICE_WSAPI_ENDPOINT: wsApiEndpoint
+            }
+        })
+        webSocketApi.grantManageConnections(invoiceEventsHandler)
+
+        //The function InvoiceEventsHandler will have this permission
+        const eventsdbPolicy = new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions: ["dynamodb:PutItem"],
+            resources: [props.eventsDb.tableArn],
+            conditions: {
+                ["ForAllValues:StringLike"]: {
+                    "dynamodb:LeadingKeys": ["#invoice_*"]
+                }
+            }
+        })
+        invoiceEventsHandler.addToRolePolicy(eventsdbPolicy)
+
+        const invoiceEventsDlq = new sqs.Queue(this, "InvoiceEventsDlq", {
+            queueName: "InvoiceEventsDlq"
+        })
+
+        invoiceEventsHandler.addEventSource(new lambdaEventSource.DynamoEventSource(invoicesDb, {
+            startingPosition: lambda.StartingPosition.TRIM_HORIZON,
+            batchSize: 5,
+            bisectBatchOnError: true,
+            onFailure: new lambdaEventSource.SqsDlq(invoiceEventsDlq),
+            retryAttempts: 3
+        }))
     }
 }
