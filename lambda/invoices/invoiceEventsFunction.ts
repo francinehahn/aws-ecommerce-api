@@ -1,17 +1,19 @@
 import * as xray from "aws-xray-sdk"
 import { AttributeValue, Context, DynamoDBStreamEvent } from "aws-lambda"
-import { ApiGatewayManagementApi, DynamoDB } from "aws-sdk"
+import { ApiGatewayManagementApi, DynamoDB, EventBridge } from "aws-sdk"
 import { InvoiceWsService } from "/opt/nodejs/invoiceWSConnection"
 
 xray.captureAWS(require("aws-sdk"))
 
 const eventsDb = process.env.EVENTS_DB!
 const invoicesWsApiEndpoint = process.env.INVOICE_WSAPI_ENDPOINT!.substring(6) // wss://<address WS APi> (we want to remove the first 6 char)
+const auditBusName = process.env.AUDIT_BUS_NAME!
 
 const dbClient = new DynamoDB.DocumentClient()
 const apigwManagementApi = new ApiGatewayManagementApi({
     endpoint: invoicesWsApiEndpoint
 })
+const eventBridgeClient = new EventBridge()
 
 const invoiceWsService = new InvoiceWsService(apigwManagementApi)
 
@@ -49,7 +51,25 @@ async function processExpiredTransaction (invoiceTransactionImage: {[key: string
         console.log("Invoice processed")
     } else {
         console.log(`Invoice import failed - Status: ${invoiceTransactionImage.transactionStatus.S}`)
-        await invoiceWsService.sendInvoiceStatus(transactionId, connectionId, "TIMEOUT")
+
+        const putEventPromise = eventBridgeClient.putEvents({
+            Entries: [
+                {
+                    Source: "app.invoice",
+                    EventBusName: auditBusName,
+                    DetailType: "invoice",
+                    Time: new Date(),
+                    Detail: JSON.stringify({
+                        errorDetail: "TIMEOUT",
+                        transactionId: transactionId
+                    })
+                }
+            ]
+        }).promise()
+
+        const sendStatusPromise = invoiceWsService.sendInvoiceStatus(transactionId, connectionId, "TIMEOUT")
+        await Promise.all([putEventPromise, sendStatusPromise])
+        
         await invoiceWsService.disconnectClient(connectionId)
     }
 }
