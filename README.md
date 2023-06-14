@@ -7,28 +7,40 @@ This project is an API REST that simulates the back-end of an ecommerce.
 ![api-architecture](./api-architecture.png)
 <br>
 
-## 🔗Documentation:
+## 🔗Documentation API REST:
 https://documenter.getpostman.com/view/26335922/2s93sc3rmW
 
-## 🌐 Deploy
+## 🌐 Deploy API REST
 https://v64w7tbd25.execute-api.us-east-1.amazonaws.com/prod/
 
+## 🌐 Deploy WEBSOCKET API
+wss://77ajekty87.execute-api.us-east-1.amazonaws.com/prod
+
+## 🔗Documentation WEBSOCKET API:
+- DESCREVER COMO USAR!!!!!!!!!!!1
+
 ## ☑️Requests created:
--`Products:`
+- `Products:`
 - Get All Products
 - Get Product By Id
 - Create Product
 - Update Product
 - Delete Product
--`Orders:`
+- `Orders:`
 - Get All Orders
 - Get All Orders From A Client
 - Get An Order From A Client
 - Create An Order
 - Delete An Order
--`Events:`
+- `Events:`
 - Get Events By Email
 - Get Events By Email And Event Type
+- Create An Event
+- `Invoices:`
+- Get Url (this url will be used to import the invoice file)
+- Import Invoice File
+- Cancel Import Invoice
+
 
 ## 💻 Technologies:
 - Typescript
@@ -39,6 +51,7 @@ https://v64w7tbd25.execute-api.us-east-1.amazonaws.com/prod/
 - AWS Simple Notification Service (SNS)
 - AWS Simple Queue Service (SQS)
 - AWS Simple Email Service (SES)
+- AWS Event Bridge
 - AWS Cloud Watch
 - AWS X-Ray
 - AWS Simple Storage Service (S3)
