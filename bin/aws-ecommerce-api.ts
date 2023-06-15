@@ -11,7 +11,7 @@ import { OrdersAppStack } from '../lib/ordersApp-stack'
 import { InvoiceWSApiStack } from '../lib/invoiceWSApi-stack'
 import { InvoicesAppLayersStack } from '../lib/invoicesAppLayers-stack'
 import { AuditEvetBusStack } from '../lib/auditEventBus-stack'
-import { AuthLayersStack } from 'lib/authLayers-stack'
+import { AuthLayersStack } from '../lib/authLayers-stack'
 
 dotenv.config()
 
