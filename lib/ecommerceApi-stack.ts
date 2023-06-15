@@ -43,15 +43,48 @@ export class EcommerceApiStack extends cdk.Stack {
             }
         })
 
-        this.createCognitoAuth()
+        this.createCognitoAuth(props, api)
         this.createProductsService(props, api)
         this.createOrdersService(props, api)
     }
 
 
     private createCognitoAuth (props: EcommerceApiStackProps, api: apiGateway.RestApi) {
+        //This function will be triggered after the user registration
+        const postConfirmationHandler = new lambdaNodeJS.NodejsFunction(this, "PostConfirmationFunction", {
+            functionName: "PostConfirmationFunction",
+            entry: "lambda/auth/postConfirmationFunction.ts",
+            handler: "handler",
+            memorySize: 128,
+            timeout: cdk.Duration.seconds(2),
+            bundling: {
+                minify: true,
+                sourceMap: false
+            },
+            tracing: lambda.Tracing.ACTIVE,
+            insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
+        })
+
+        const preAuthenticationHandler = new lambdaNodeJS.NodejsFunction(this, "PreAuthenticationFunction", {
+            functionName: "PreAuthenticationFunction",
+            entry: "lambda/auth/preAuthenticationFunction.ts",
+            handler: "handler",
+            memorySize: 128,
+            timeout: cdk.Duration.seconds(2),
+            bundling: {
+                minify: true,
+                sourceMap: false
+            },
+            tracing: lambda.Tracing.ACTIVE,
+            insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
+        })
+        
         //cognito customer user pool
         this.customerPool = new cognito.UserPool(this, "CustomerPool", {
+            lambdaTriggers: {
+                preAuthentication: preAuthenticationHandler,
+                postAuthentication: postConfirmationHandler
+            },
             userPoolName: "CustomerPool",
             removalPolicy: cdk.RemovalPolicy.DESTROY,
             selfSignUpEnabled: true,
