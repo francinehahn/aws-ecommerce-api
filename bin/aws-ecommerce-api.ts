@@ -11,6 +11,7 @@ import { OrdersAppStack } from '../lib/ordersApp-stack'
 import { InvoiceWSApiStack } from '../lib/invoiceWSApi-stack'
 import { InvoicesAppLayersStack } from '../lib/invoicesAppLayers-stack'
 import { AuditEvetBusStack } from '../lib/auditEventBus-stack'
+import { AuthLayersStack } from 'lib/authLayers-stack'
 
 dotenv.config()
 
@@ -35,6 +36,12 @@ const auditEventBusStack = new AuditEvetBusStack(app, "AuditEvents", {
   env: env
 })
 
+//Auth Layers stack
+const authLayersStack = new AuthLayersStack(app, "AuthLayers", {
+  tags: tags,
+  env: env
+})
+
 //Products Layers stack
 const productsAppLayersStack = new ProductsAppLayersStack(app, "ProductsAppLayers", {
   tags: tags,
@@ -47,7 +54,7 @@ const eventsDbStack = new EventsDbStack(app, "EventsDb", {
   env: env
 })
 
-//Products stack
+//Products App stack
 const productsAppStack = new ProductsAppStack(app, "ProductsApp", {
   tags: tags,
   env: env,
@@ -55,6 +62,7 @@ const productsAppStack = new ProductsAppStack(app, "ProductsApp", {
 })
 
 productsAppStack.addDependency(productsAppLayersStack)
+productsAppStack.addDependency(authLayersStack)
 productsAppStack.addDependency(eventsDbStack)
 
 //Orders Layer Stack

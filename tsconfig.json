@@ -51,6 +51,9 @@
       ],
       "/opt/nodejs/invoiceRepository": [
         "lambda/invoices/layers/invoiceRepository/nodejs/invoiceRepository",
+      ],
+      "/opt/nodejs/authUserInfo": [
+        "lambda/auth/layers/authUserInfo/nodejs/authUserInfo",
       ]
     }
   },

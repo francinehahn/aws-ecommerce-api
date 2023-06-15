@@ -1,8 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda"
 import { Product, ProductRepository } from "/opt/nodejs/productsLayer"
-import { DynamoDB, Lambda } from "aws-sdk"
+import { CognitoIdentityServiceProvider, DynamoDB, Lambda } from "aws-sdk"
 import * as xray from "aws-xray-sdk"
 import { ProductEvent, ProductEventType } from "/opt/nodejs/productEventsLayer"
+import { AuthInfoService } from "/opt/nodejs/authUserInfo"
 
 //adding aws x ray
 xray.captureAWS(require("aws-sdk"))
@@ -13,8 +14,10 @@ const productsdb = process.env.PRODUCTS_DB!
 const productsEventFunctionName = process.env.PRODUCT_EVENTS_FUNCTION_NAME!
 const dbclient = new DynamoDB.DocumentClient()
 const lambdaClient = new Lambda()
+const cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider()
 const productRepository = new ProductRepository(dbclient, productsdb) 
 
+const authInfoService = new AuthInfoService(cognitoIdentityServiceProvider)
 
 export async function handler (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> {
     //number that identifies the execution of the lambda function
@@ -28,12 +31,14 @@ export async function handler (event: APIGatewayProxyEvent, context: Context): P
 
     const method = event.httpMethod
     
+    const userEmail = await authInfoService.getUserInfo(event.requestContext.authorizer)
+
     if (event.resource === "/products") {
         console.log("POST")
 
         const product = JSON.parse(event.body!) as Product
         const productInserted = await productRepository.insertProduct(product)
-        const response = await sendProductEvent(productInserted, ProductEventType.CREATED, "email.teste@gmail.com", lambdaRequestId)
+        const response = await sendProductEvent(productInserted, ProductEventType.CREATED, userEmail, lambdaRequestId)
         console.log(response)
 
         return {
@@ -50,7 +55,7 @@ export async function handler (event: APIGatewayProxyEvent, context: Context): P
             try {
                 const product = JSON.parse(event.body!) as Product
                 const productUpdated = await productRepository.updateProduct(productId, product)
-                const response = await sendProductEvent(productUpdated, ProductEventType.UPDATED, "email2.teste@gmail.com", lambdaRequestId)
+                const response = await sendProductEvent(productUpdated, ProductEventType.UPDATED, userEmail, lambdaRequestId)
                 console.log(response)
 
                 return {
@@ -69,7 +74,7 @@ export async function handler (event: APIGatewayProxyEvent, context: Context): P
             try {
                 const deleteProduct = await productRepository.deleteProduct(productId)            
 
-                const response = await sendProductEvent(deleteProduct, ProductEventType.DELETED, "email3.teste@gmail.com", lambdaRequestId)
+                const response = await sendProductEvent(deleteProduct, ProductEventType.DELETED, userEmail, lambdaRequestId)
                 console.log(response)
 
                 return {
