@@ -64,6 +64,10 @@ export class OrdersAppStack extends cdk.Stack {
         const orderEventsRepositoryLayerArn = ssm.StringParameter.valueForStringParameter(this, "OrderEventsRepositoryLayerVersionArn")
         const orderEventsRepositoryLayer = lambda.LayerVersion.fromLayerVersionArn(this, "OrderEventsRepositoryLayerVersionArn", orderEventsRepositoryLayerArn)
 
+        //This stack will use the auth user info layer
+        const authUserInfoLayerArn = ssm.StringParameter.valueForStringParameter(this, "AuthUserInfoLayerVersionArn")
+        const authUserInfoLayer = lambda.LayerVersion.fromLayerVersionArn(this, "AuthUserInfoLayerVersionArn", authUserInfoLayerArn)
+
         //sns topic
         const ordersTopic = new sns.Topic(this, "OrderEventsTopic", {
             displayName: "Order events topic",
@@ -86,9 +90,9 @@ export class OrdersAppStack extends cdk.Stack {
                 ORDER_EVENTS_TOPIC_ARN: ordersTopic.topicArn,
                 AUDIT_BUS_NAME: props.auditBus.eventBusName
             },
-            layers: [ordersLayer, ordersApiLayer, orderEventsLayer, productsLayer],
+            layers: [ordersLayer, ordersApiLayer, orderEventsLayer, productsLayer, authUserInfoLayer],
             tracing: lambda.Tracing.ACTIVE,
-            insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
+            //insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0 //it adds another lambda layer
         })
 
         ordersdb.grantReadWriteData(this.ordersHandler)
