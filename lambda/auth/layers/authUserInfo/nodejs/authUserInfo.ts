@@ -24,4 +24,8 @@ export class AuthInfoService {
             throw new Error("Email not found")
         }
     }
+
+    isAdminUser (authorizer: APIGatewayEventDefaultAuthorizerContext): boolean {
+        return authorizer?.claims.scope.startsWith("admin")
+    }
 }
