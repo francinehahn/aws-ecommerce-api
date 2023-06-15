@@ -155,7 +155,7 @@ export class EcommerceApiStack extends cdk.Stack {
             }
         })
 
-        this.customerPool.addDomain("AdminDomain", {
+        this.adminPool.addDomain("AdminDomain", {
             cognitoDomain: {
                 domainPrefix: "fh-admin-service"
             }
