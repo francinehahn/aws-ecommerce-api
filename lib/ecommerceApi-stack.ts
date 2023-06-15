@@ -58,6 +58,18 @@ export class EcommerceApiStack extends cdk.Stack {
             statements: [adminUserPolicyStatement]
         })
         adminUserPolicy.attachToRole(<iam.Role> props.productsAdminHandler.role)
+        adminUserPolicy.attachToRole(<iam.Role> props.ordersHandler.role)
+
+        const customerUserPolicyStatement = new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions: ["cognito-idp:AdminGetUser"],
+            resources: [this.customerPool.userPoolArn]
+        })
+
+        const customerUserPolicy = new iam.Policy(this, "CustomerGetUserPolicy", {
+            statements: [customerUserPolicyStatement]
+        })
+        customerUserPolicy.attachToRole(<iam.Role> props.ordersHandler.role)
 
         this.createProductsService(props, api)
         this.createOrdersService(props, api)
