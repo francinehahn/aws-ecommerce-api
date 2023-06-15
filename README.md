@@ -1,7 +1,7 @@
 <h1 align="center">E-commerce API REST: AWS CDK TypeScript project</h1>
 
 ## ℹ️About
-This project is an API REST that simulates the back-end of an ecommerce.
+This project is an API REST and an API WebSocket that simulates the back-end of an ecommerce.
 
 ## 📷 Architecture of the project:
 ![api-architecture](./api-architecture.png)
@@ -60,7 +60,42 @@ Write the following JSON message on the specified field:
   <code>Click on 'send'</code>
 </pre>
 
+## How to signup:
+Copy the url below and paste it in your browser.
+<pre>
+  <code>
+  https://fh-customer-service.auth.us-east-1.amazoncognito.com/signup?client_id=2h74fjcrcf49qcni4g2estel8i&response_type=token&redirect_uri=https%3A%2F%2Fexample.com
+  </code>
+</pre>
+
+<pre>
+  <code>Fill all the fields</code>
+</pre>
+
+<pre>
+  <code>Copy the token in the url and use it in the requests</code>
+</pre>
+
+## How to log in:
+Copy the url below and paste it in your browser.
+<pre>
+  <code>
+  https://fh-customer-service.auth.us-east-1.amazoncognito.com/login?client_id=2h74fjcrcf49qcni4g2estel8i&response_type=token&redirect_uri=https%3A%2F%2Fexample.com
+  </code>
+</pre>
+
+<pre>
+  <code>Fill all the fields</code>
+</pre>
+
+<pre>
+  <code>Copy the token in the url and use it in the requests</code>
+</pre>
+
 ## ☑️Requests created:
+- `Users:`
+- Login
+- Signup
 - `Products:`
 - Get All Products
 - Get Product By Id
@@ -81,7 +116,6 @@ Write the following JSON message on the specified field:
 - Get Url (this url will be used to import the invoice file)
 - Import Invoice File
 - Cancel Import Invoice
-
 
 ## 💻 Technologies:
 - Typescript
