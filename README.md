@@ -91,6 +91,7 @@ Write the following JSON message on the specified field:
 - WebSocket API do API Gateway
 - AWS Simple Notification Service (SNS)
 - AWS Simple Queue Service (SQS)
+- AWS Cognito (Authentication)
 - AWS Simple Email Service (SES)
 - AWS Event Bridge
 - AWS Cloud Watch
