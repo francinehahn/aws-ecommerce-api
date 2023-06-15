@@ -1,7 +1,7 @@
-<h1 align="center">E-commerce API REST: AWS CDK TypeScript project</h1>
+<h1 align="center">E-commerce API REST: AWS CDK TypeScript Project</h1>
 
 ## ℹ️About
-This project is an API REST and an API WebSocket that simulates the back-end of an ecommerce.
+This project is composed of an API REST and an API WebSocket that simulates the back-end of an ecommerce.
 
 ## 📷 Architecture of the project:
 ![api-architecture](./api-architecture.png)
@@ -11,10 +11,10 @@ This project is an API REST and an API WebSocket that simulates the back-end of 
 https://documenter.getpostman.com/view/26335922/2s93sc3rmW
 
 ## 🌐 Deploy API REST
-https://lgsqgv19ml.execute-api.us-east-1.amazonaws.com/prod/
+https://ynka76g5qa.execute-api.us-east-1.amazonaws.com/prod/
 
 ## 🌐 Deploy WEBSOCKET API
-wss://thw4rndw60.execute-api.us-east-1.amazonaws.com/prod
+wss://gne6morzih.execute-api.us-east-1.amazonaws.com/prod
 
 ## 🔗Documentation WEBSOCKET API:
 WebSocket API has 2 endpoints:
@@ -61,35 +61,35 @@ Write the following JSON message on the specified field:
 </pre>
 
 ## How to signup:
-Copy the url below and paste it in your browser.
+Copy the url below and paste it on your browser.
 <pre>
   <code>
-  https://fh-customer-service.auth.us-east-1.amazoncognito.com/signup?client_id=2h74fjcrcf49qcni4g2estel8i&response_type=token&redirect_uri=https%3A%2F%2Fexample.com
+    https://fh-customer-service.auth.us-east-1.amazoncognito.com/signup?client_id=2dc9oln3oc3llmaijfrj25jpq1&response_type=token&redirect_uri=https%3A%2F%2Fexample.com
   </code>
 </pre>
 
 <pre>
-  <code>Fill all the fields</code>
+  <code>Fill in all the fields</code>
 </pre>
 
 <pre>
-  <code>Copy the token in the url and use it in the requests</code>
+  <code>Copy the token in the new url on your browser and use it to make the http the requests</code>
 </pre>
 
 ## How to log in:
-Copy the url below and paste it in your browser.
+Copy the url below and paste it on your browser.
 <pre>
   <code>
-  https://fh-customer-service.auth.us-east-1.amazoncognito.com/login?client_id=2h74fjcrcf49qcni4g2estel8i&response_type=token&redirect_uri=https%3A%2F%2Fexample.com
+    https://fh-customer-service.auth.us-east-1.amazoncognito.com/login?client_id=2dc9oln3oc3llmaijfrj25jpq1&response_type=token&redirect_uri=https%3A%2F%2Fexample.com
   </code>
 </pre>
 
 <pre>
-  <code>Fill all the fields</code>
+  <code>Fill in all the fields</code>
 </pre>
 
 <pre>
-  <code>Copy the token in the url and use it in the requests</code>
+  <code>Copy the token in the new url on your browser and use it to make the http the requests</code>
 </pre>
 
 ## ☑️Requests created:
