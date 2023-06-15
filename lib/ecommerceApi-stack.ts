@@ -404,9 +404,6 @@ export class EcommerceApiStack extends cdk.Stack {
             schema: {
                 type: apiGateway.JsonSchemaType.OBJECT,
                 properties: {
-                    email: {
-                        type: apiGateway.JsonSchemaType.STRING
-                    },
                     productIds: {
                         type: apiGateway.JsonSchemaType.ARRAY,
                         minItems: 1,
@@ -420,7 +417,6 @@ export class EcommerceApiStack extends cdk.Stack {
                     }
                 },
                 required: [
-                    "email",
                     "productIds",
                     "payment"
                 ]
