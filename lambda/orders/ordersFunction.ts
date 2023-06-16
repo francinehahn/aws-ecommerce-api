@@ -234,7 +234,7 @@ function convertToOrderResponse (order: Order): OrderResponse {
         email: order.pk,
         id: order.sk!,
         createdAt: order.createdAt!,
-        products: orderProducts.length > 0? orderProducts : undefined,
+        products: orderProducts.length? orderProducts : undefined,
         billing: {
             payment: order.billing.payment as PaymentType,
             totalPrice: order.billing.totalPrice

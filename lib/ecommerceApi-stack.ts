@@ -400,7 +400,6 @@ export class EcommerceApiStack extends cdk.Stack {
         const orderModel = new apiGateway.Model(this, "OrderModel", {
             modelName: "OrderModel",
             restApi: api,
-            contentType: "application/json",
             schema: {
                 type: apiGateway.JsonSchemaType.OBJECT,
                 properties: {
